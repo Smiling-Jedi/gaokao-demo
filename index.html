@@ -85,6 +85,16 @@
   .detail th { background:#F5F7FA; color:var(--mist); font-weight:600; }
   .fact { font-size:12px; line-height:2; }
   .caveat { font-size:11px; color:#8A94A3; line-height:1.7; margin-top:8px; border-top:1px dashed var(--hair); padding-top:7px; }
+  /* 就业可视化 */
+  .h4-note { font-size:11px; color:#8A94A3; font-weight:400; margin-left:6px; }
+  .rate-big { display:flex; align-items:baseline; gap:10px; margin:4px 0 6px; }
+  .rate-big b { font-size:26px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .rate-big span { font-size:12px; color:var(--mist); line-height:1.5; }
+  .rate-bar { height:8px; background:var(--hair); border-radius:4px; overflow:hidden; margin-bottom:8px; }
+  .rate-bar i { display:block; height:100%; border-radius:4px; }
+  .rate-bar i.lv-hi { background:var(--green); }
+  .rate-bar i.lv-mid { background:var(--amber); }
+  .rate-bar i.lv-lo { background:var(--seal); }
   /* ===== 留资 ===== */
   .lead-v3 { background:#fff; border:1px solid var(--hair); border-radius:12px; padding:18px 16px; margin-top:16px; }
   .lead-v3 .gets { font-size:14px; font-weight:700; margin-bottom:8px; }
@@ -292,16 +302,16 @@ const SCHOOLS = {
 };
 const JOB = {
  '电气': {rate:'95.7%',way:'国家电网/南方电网、发电集团、电气设备、新能源企业',trend:'连续 3 年绿牌专业，需求在涨不在缩',pay:'毕业半年约 7,500 元（2025届）'},
- '能源': {rate:'96.4%',way:'电厂、能源集团、新能源车热管理',trend:'专业类落实率第 1，三年霸榜',pay:'毕业半年约 7,200-7,450 元'},
+ '能源': {rate:'96.4%',way:'电厂、能源集团、新能源车热管理',trend:'专业类有着落率第 1，三年霸榜',pay:'毕业半年约 7,200-7,450 元'},
  '电子': {rate:'约 93-96%',way:'芯片设计、晶圆制造、封测、设备材料',trend:'微电子连续 5 年绿牌',pay:'微电子 7,814 元（2025届薪资第 1）'},
- '计算机': {rate:'82.4%',way:'互联网/软件、AI、政企数字化、考公',trend:'⚠️ 落实率倒数第 11，普通院校慎报，211 以上仍是高薪通道',pay:'6,846 元（2024届，已跌出前十）'},
+ '计算机': {rate:'82.4%',way:'互联网/软件、AI、政企数字化、考公',trend:'⚠️ 有着落率倒数第 11，普通院校慎报，211 以上仍是高薪通道',pay:'6,846 元（2024届，已跌出前十）'},
  '机械': {rate:'94.7%',way:'装备制造、智能制造、车企、机器人',trend:'山西本地装备制造企业对口',pay:'7,200-7,450 元（2025届 TOP10）'},
- '测控': {rate:'94.9%',way:'仪器仪表、传感器、智能制造',trend:'专业类落实率第 3',pay:'7,200-7,450 元（2025届 TOP10）'},
+ '测控': {rate:'94.9%',way:'仪器仪表、传感器、智能制造',trend:'专业类有着落率第 3',pay:'7,200-7,450 元（2025届 TOP10）'},
  '会计': {rate:'91.4%',way:'企业财务、会计师事务所、考公（岗位极多）、银行',trend:'考公岗位量最大的专业之一',pay:'约 5,500-8,000 元（方差大）'},
- '法学': {rate:'75.0%',way:'考公（公检法岗位量第一）、律师、企业法务',trend:'⚠️ 落实率倒数第 1——法考+考研二次筛选，做好长线准备',pay:'起薪偏低，入行后分化大'},
- '汉语言': {rate:'80.5%',way:'语文教师（考编）、考公、媒体/出版',trend:'⚠️ 落实率倒数第 6，考编是主通道',pay:'传统文科平均起薪约 4,200-5,800'},
+ '法学': {rate:'75.0%',way:'考公（公检法岗位量第一）、律师、企业法务',trend:'⚠️ 有着落率倒数第 1——法考+考研二次筛选，做好长线准备',pay:'起薪偏低，入行后分化大'},
+ '汉语言': {rate:'80.5%',way:'语文教师（考编）、考公、媒体/出版',trend:'⚠️ 有着落率倒数第 6，考编是主通道',pay:'传统文科平均起薪约 4,200-5,800'},
  '英语': {rate:'86.9%（待核）',way:'外贸/跨境电商、教师、翻译',trend:'⚠️ 教培出口关闭，纯语言贬值，「语言+技能」升值',pay:'5,839 元（2024届，低于平均 580 元）'},
- '金融': {rate:'81.7%',way:'银行、券商基金、考公',trend:'⚠️ 落实率倒数第 10，高分低落实陷阱',pay:'门类约 6,280 元'},
+ '金融': {rate:'81.7%',way:'银行、券商基金、考公',trend:'⚠️ 有着落率倒数第 10，高分低落实陷阱',pay:'门类约 6,280 元'},
  '农学': {rate:'88.7%',way:'种业公司、农技推广、考公',trend:'连续三年上升',pay:'门类水平'},
  '教育': {rate:'86.9%',way:'小学教师（考编）、素质教育机构',trend:'⚠️ 出生人口下降，特岗从 10.5 万缩到 2.1 万',pay:'门类 5,085 元（最低档）'},
  '医学': {rate:'—',way:'综合医院、基层医疗、医药企业',trend:'5+3 共 8 年才独立执业，40 岁后发力，无中年危机',pay:'规培期低，正式入职年薪 15-30 万'}
@@ -442,20 +452,31 @@ function pickSchools(range, n, used, dir){
 function schoolCard(s){
   const job = jobOf(s.major);
   const rows = s.y3.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+  let jobHtml = '';
+  if(job){
+    const m = (job.rate||'').match(/[\d.]+/);
+    const pct = m ? +m[0] : null;
+    const lv = pct==null ? '' : pct>=90 ? 'lv-hi' : pct>=80 ? 'lv-mid' : 'lv-lo';
+    const people = pct==null ? '' : Math.round(pct);
+    jobHtml = `
+      <h4>毕业后干什么<span class="h4-note">全国这类专业的平均情况</span></h4>
+      ${pct?`<div class="rate-big"><b>${job.rate.replace('（待核）','')}</b><span>毕业半年内有了去向<br>（工作或升学都算）</span></div>
+      <div class="rate-bar"><i class="${lv}" style="width:${pct}%"></i></div>
+      <div class="fact" style="color:#8A94A3">100 个毕业生里，约 ${people} 个半年内有着落</div>`:''}
+      <div class="fact" style="margin-top:6px">主要去向：${job.way}<br>${job.trend}</div>
+      <h4>毕业能拿多少<span class="h4-note">全国这类专业的平均情况</span></h4>
+      <div class="fact">${job.pay}；毕业三年后，全国工学门类平均约 10,327 元</div>
+      <div class="caveat">以上是全国同类专业的平均情况（第三方机构麦可思调查），不是这所大学的本校数据；本校就业报告可以找老师要。</div>`;
+  }
   return `<div class="school-line" onclick="toggleDetail(this)">
-      <span class="sl-name">${s.n}<span class="sl-major">${s.major}</span>${s.demo?'<span class="tag-demo">示例</span>':''}</span>
+      <span class="sl-name">${s.n}<span class="sl-major">${s.major}</span>${s.demo?'<span class="tag-demo">演示数据</span>':''}</span>
       <span class="sl-right"><span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span><span class="sl-chev">详情</span></span>
     </div>
     <div class="detail">
       <h4>近3年录取（山西 · ${st.first}类）</h4>
       <table><tr><th>年份</th><th>最低分</th><th>最低排名</th></tr>${rows}</table>
       ${s.real?`<div class="caveat">★ ${s.real}</div>`:`<div class="caveat">演示估值，正式版接入 2026 全量数据</div>`}
-      ${job?`
-      <h4>就业（全国同类专业口径）</h4>
-      <div class="fact">落实率 <b>${job.rate}</b><br>主要去向：${job.way}<br>${job.trend}</div>
-      <h4>薪资（全国同类专业口径）</h4>
-      <div class="fact">${job.pay}；毕业3年后参考：工学门类平均 10,327 元（2019届跟踪）</div>
-      <div class="caveat">就业率/薪资为全国同类专业统计（麦可思），非本校数据；本校就业报告可问老师索取。</div>`:''}
+      ${jobHtml}
     </div>`;
 }
 function toggleDetail(el){
@@ -483,7 +504,7 @@ function render(){
     return `<div class="tier ${t.cls}">
       <div class="t-name">${t.name}<span class="t-tag">${t.desc}</span></div>
       ${schools.length?schools.map(schoolCard).join(''):'<div class="reason">这个位次段的院校库正在补充，正式版覆盖全量</div>'}
-      ${job?`<div class="reason">💬 ${first.major}：落实率 ${job.rate}，${job.trend}</div>`:''}
+      ${job?`<div class="reason">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend}</div>`:''}
     </div>`;
   }).join('');
 }
