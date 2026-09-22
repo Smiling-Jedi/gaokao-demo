@@ -111,6 +111,26 @@
   .check { text-align:center; font-size:44px; margin:56px 0 12px; color:var(--green); }
   .check-title { text-align:center; font-size:21px; font-weight:800; margin-bottom:10px; }
   .check-sub { text-align:center; color:var(--mist); font-size:14px; line-height:2.1; margin-bottom:26px; }
+  .f-label { font-size:15px; font-weight:700; margin-bottom:9px; }
+  /* 就业/薪资 图形化 */
+  .stat-row { display:flex; align-items:center; gap:12px; margin:6px 0; }
+  .stat-big { font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; }
+  .stat-cap { font-size:12.5px; color:var(--mist); line-height:1.5; }
+  .way-chips { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 4px; }
+  .way-chip { font-size:12px; background:#F0F4FF; color:var(--indigo); border-radius:6px; padding:4px 9px; }
+  .pill { display:inline-block; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.6; margin-top:8px; }
+  .pill.good { background:#E8F5EE; color:var(--green); }
+  .pill.warn { background:#FDF3E7; color:var(--amber); }
+  .pay-tiles { display:flex; gap:10px; margin:8px 0 4px; }
+  .pay-tile { flex:1; background:#F7F9FC; border:1px solid var(--hair); border-radius:10px; padding:10px 12px; }
+  .pay-tile .v { font-size:19px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .pay-tile .k { font-size:11.5px; color:var(--mist); margin-top:2px; line-height:1.5; }
+  .cmp-line { font-size:12px; color:var(--mist); margin-top:6px; display:flex; align-items:center; gap:8px; }
+  .cmp-bar { flex:1; height:6px; background:var(--hair); border-radius:3px; position:relative; overflow:hidden; }
+  .cmp-bar i { position:absolute; left:0; top:0; bottom:0; background:var(--indigo); border-radius:3px; }
+  .cmp-bar u { position:absolute; top:0; bottom:0; width:2px; background:var(--seal); }
+  .opt-toggle { font-size:13.5px; color:var(--indigo); padding:13px 2px; border-top:1px dashed var(--hair); cursor:pointer; margin-bottom:10px; }
+  .opt-toggle span { float:right; font-size:12.5px; color:#8A94A3; }
   /* PC 兼顾：不展开宽版，手机版式居中呈现（投流页全端一个样） */
   @media (min-width:900px) {
     body { background:#E8ECF3; }
@@ -142,75 +162,79 @@
 
 <!-- ================= S2 表单 ================= -->
 <div class="screen" id="s2">
-  <div class="progress"><i id="pg" style="width:25%"></i></div>
-  <div class="step-label" id="pgText">第 1 步 / 共 4 步</div>
+  <div class="q-title" style="margin-top:4px">孩子的情况</div>
+  <div class="q-sub">4 项必填，30 秒填完</div>
 
-  <div class="fq" id="q1">
-    <div class="q-title">孩子是男孩还是女孩？</div>
-    <div class="q-sub">部分专业方向（如军校、护理）与性别有关</div>
-    <div class="chips">
-      <div class="chip" data-v="男" onclick="pick(this,'gender')">男生</div>
-      <div class="chip" data-v="女" onclick="pick(this,'gender')">女生</div>
-    </div>
-  </div>
-
-  <div class="fq" id="q2" style="display:none">
-    <div class="q-title">选科组合？</div>
-    <div class="q-sub">山西新高考 3+1+2：先选物理或历史，再选两科</div>
+  <div class="fq">
     <div class="field">
+      <div class="f-label">① 孩子性别</div>
+      <div class="chips">
+        <div class="chip" data-v="男" onclick="pick(this,'gender')">男生</div>
+        <div class="chip" data-v="女" onclick="pick(this,'gender')">女生</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="f-label">② 选科组合</div>
       <div class="chips">
         <div class="chip" data-v="物理" onclick="pick(this,'first')">物理</div>
         <div class="chip" data-v="历史" onclick="pick(this,'first')">历史</div>
       </div>
+      <div id="secondRow" style="display:none;margin-top:10px">
+        <div class="hint" style="margin:0 0 6px">再选两科（点两个）：</div>
+        <div class="chips">
+          <div class="chip" data-v="化学" onclick="pick2(this)">化学</div>
+          <div class="chip" data-v="生物" onclick="pick2(this)">生物</div>
+          <div class="chip" data-v="政治" onclick="pick2(this)">政治</div>
+          <div class="chip" data-v="地理" onclick="pick2(this)">地理</div>
+        </div>
+      </div>
     </div>
-    <div class="field" id="secondRow" style="display:none">
-      <div class="hint" style="margin-bottom:8px">再选两科（点两个）：</div>
-      <div class="chips">
-        <div class="chip" data-v="化学" onclick="pick2(this)">化学</div>
-        <div class="chip" data-v="生物" onclick="pick2(this)">生物</div>
-        <div class="chip" data-v="政治" onclick="pick2(this)">政治</div>
-        <div class="chip" data-v="地理" onclick="pick2(this)">地理</div>
+
+    <div class="field">
+      <div class="f-label">③ 最近一次考试总分</div>
+      <input class="input-box" id="score" type="number" inputmode="numeric" placeholder="例如 556（月考/期中/模考都行）" min="0" max="750">
+      <div class="hint" id="scorePreview"></div>
+    </div>
+
+    <div class="field">
+      <div class="f-label">④ 知道孩子的排名吗？</div>
+      <div class="chips" style="margin-bottom:10px">
+        <div class="chip" data-v="省" onclick="pickRankType(this,'省')">省排名</div>
+        <div class="chip" data-v="市" onclick="pickRankType(this,'市')">市排名</div>
+        <div class="chip" data-v="校" onclick="pickRankType(this,'校')">校排名</div>
+        <div class="chip" data-v="无" onclick="pickRankType(this,'无')">不知道</div>
+      </div>
+      <div class="field" id="rankInput" style="display:none;margin-bottom:10px">
+        <input class="input-box" id="rankVal" type="number" inputmode="numeric" placeholder="名次，例如 120">
+      </div>
+      <div class="field" id="schoolInput" style="display:none;margin-bottom:0">
+        <input class="input-box" id="schoolName" list="schoolList" placeholder="所在高中（用于校准，可不留）">
+        <datalist id="schoolList">
+          <option value="山大附中"></option><option value="太原五中"></option><option value="山西省实验中学"></option>
+          <option value="太原市外国语学校"></option><option value="成成中学"></option><option value="太原十二中"></option>
+          <option value="太原师院附中"></option><option value="新希望双语"></option><option value="现代双语"></option>
+          <option value="知达常青藤"></option><option value="杏岭实验"></option><option value="徐沟中学"></option>
+          <option value="小店一中"></option><option value="进山中学"></option><option value="太原十五中"></option>
+          <option value="太原十八中"></option><option value="三十七中"></option><option value="四十八中"></option>
+          <option value="清徐中学"></option>
+        </datalist>
+      </div>
+      <div class="hint" id="noRankHint" style="display:none">没关系，我们按成绩区间估算，结果区间会相应放宽。</div>
+    </div>
+
+    <div class="opt-toggle" onclick="toggleOpt()">补充信息（可选）：职业方向 / 目标城市 / 高中 / 再补成绩 <span id="optArrow">展开填写 ▾</span></div>
+    <div id="optBox" style="display:none">
+      <div class="field"><div class="hint" style="margin-bottom:6px">职业方向（还没想好也可以选）</div>
+        <div class="chips"><div class="chip" onclick="pick(this,'career')">医生</div><div class="chip" onclick="pick(this,'career')">IT/互联网</div><div class="chip" onclick="pick(this,'career')">体制内</div><div class="chip" data-v="还没想好" onclick="pick(this,'career')">还没想好</div></div>
+      </div>
+      <div class="field"><div class="hint" style="margin-bottom:6px">目标就业城市</div>
+        <div class="chips"><div class="chip" onclick="pick(this,'city')">太原</div><div class="chip" onclick="pick(this,'city')">北上广深</div><div class="chip" onclick="pick(this,'city')">新一线</div><div class="chip" onclick="pick(this,'city')">都行</div></div>
       </div>
     </div>
   </div>
 
-  <div class="fq" id="q3" style="display:none">
-    <div class="q-title">最近一次考试总分多少？</div>
-    <div class="q-sub">月考 / 期中 / 模考都行，满分 750</div>
-    <div class="field"><input class="input-box" id="score" type="number" inputmode="numeric" placeholder="例如 556" min="0" max="750"></div>
-  </div>
-
-  <div class="fq" id="q4" style="display:none">
-    <div class="q-title">知道孩子的排名吗？</div>
-    <div class="q-sub">有什么填什么，不知道也没关系</div>
-    <div class="chips" style="margin-bottom:12px">
-      <div class="chip" data-v="省" onclick="pickRankType(this,'省')">省排名</div>
-      <div class="chip" data-v="市" onclick="pickRankType(this,'市')">市排名</div>
-      <div class="chip" data-v="校" onclick="pickRankType(this,'校')">校排名</div>
-      <div class="chip" data-v="无" onclick="pickRankType(this,'无')">不知道</div>
-    </div>
-    <div class="field" id="rankInput" style="display:none">
-      <input class="input-box" id="rankVal" type="number" inputmode="numeric" placeholder="名次，例如 120">
-    </div>
-    <div class="field" id="schoolInput" style="display:none">
-      <input class="input-box" id="schoolName" list="schoolList" placeholder="所在高中（用于校准，可不留）">
-      <datalist id="schoolList">
-        <option value="山大附中"></option><option value="太原五中"></option><option value="山西省实验中学"></option>
-        <option value="太原市外国语学校"></option><option value="成成中学"></option><option value="太原十二中"></option>
-        <option value="太原师院附中"></option><option value="新希望双语"></option><option value="现代双语"></option>
-        <option value="知达常青藤"></option><option value="杏岭实验"></option><option value="徐沟中学"></option>
-        <option value="小店一中"></option><option value="进山中学"></option><option value="太原十五中"></option>
-        <option value="太原十八中"></option><option value="三十七中"></option><option value="四十八中"></option>
-        <option value="清徐中学"></option>
-      </datalist>
-    </div>
-    <div class="hint" id="noRankHint" style="display:none">没关系，我们按成绩区间估算，结果区间会相应放宽。</div>
-  </div>
-
-  <div class="form-nav">
-    <button class="btn ghost" id="backBtn" onclick="prevQ()" style="display:none">上一步</button>
-    <button class="btn secondary" id="nextBtn" onclick="nextQ()" disabled>下一步</button>
-  </div>
+  <button class="btn secondary" id="nextBtn" onclick="submit()" disabled style="margin-top:8px">看看能上什么大学</button>
 </div>
 
 <!-- ================= S3 结果页 ================= -->
@@ -222,18 +246,6 @@
   </div>
   <div class="tiers-pc" id="tiers"></div>
 
-  <div class="mini-lead"><span onclick="toggleS4()">补充 3 个信息，让推荐更准</span></div>
-  <div id="s4box" style="display:none;margin-top:12px">
-    <div class="tier">
-      <div class="field"><div class="hint" style="margin-bottom:8px">职业方向（还没想好也可以选）</div>
-        <div class="chips"><div class="chip" onclick="pick(this,'career')">医生</div><div class="chip" onclick="pick(this,'career')">IT/互联网</div><div class="chip" onclick="pick(this,'career')">体制内</div><div class="chip" data-v="还没想好" onclick="pick(this,'career')">还没想好</div></div>
-      </div>
-      <div class="field"><div class="hint" style="margin-bottom:8px">目标就业城市</div>
-        <div class="chips"><div class="chip" onclick="pick(this,'city')">太原</div><div class="chip" onclick="pick(this,'city')">北上广深</div><div class="chip" onclick="pick(this,'city')">新一线</div><div class="chip" onclick="pick(this,'city')">都行</div></div>
-      </div>
-      <button class="btn ghost" onclick="applyS4()">让推荐更准</button>
-    </div>
-  </div>
 
   <div class="lead-v3">
     <div class="gets" id="leadGets">区间是估算。太原本地老师帮你做三件事：</div>
@@ -353,47 +365,33 @@ function pickRankType(el,v){
   refreshBtn();
 }
 function refreshBtn(){
-  const s = st.step;
-  let ok = false;
-  if(s===1) ok = !!st.gender;
-  if(s===2) ok = !!st.first && st.second.length===2;
-  if(s===3) ok = st.score>=0 && st.score<=750 && $('score').value!=='';
-  if(s===4) ok = !!st.rankType;
+  const ok = !!st.gender && !!st.first && st.second.length===2
+    && $('score').value!=='' && st.score>=0 && st.score<=750 && !!st.rankType;
   $('nextBtn').disabled = !ok;
-  if(s===2 && st.first) $('secondRow').style.display='block';
+  if(st.first) $('secondRow').style.display='block';
+  // 分数即时排名预览（对照一分一段）
+  const v = $('score').value;
+  if(v && st.first && v>0 && v<=750){
+    const r = scoreToRank(+v, st.first);
+    const lo = Math.round(r/1.05), hi = Math.round(r*1.05);
+    $('scorePreview').textContent = `对照 2026 一分一段：约全省${st.first}类 ${lo.toLocaleString()}~${hi.toLocaleString()} 名`;
+  } else $('scorePreview').textContent = st.first ? '' : '先选选科，这里会即时显示对应的全省排名';
 }
-$('score') && $('score').addEventListener('input', refreshBtn);
+function toggleOpt(){
+  const b = $('optBox');
+  const open = b.style.display!=='none';
+  b.style.display = open?'none':'block';
+  $('optArrow').textContent = open?'展开填写 ▾':'收起 ▴';
+}
+$('score') && $('score').addEventListener('input', e=>{ st.score=e.target.value; refreshBtn(); });
 $('rankVal') && $('rankVal').addEventListener('input', e=> st.rankVal=e.target.value);
 $('schoolName') && $('schoolName').addEventListener('input', e=> st.school=e.target.value);
 
-function nextQ(){
-  if(st.step===3) st.score = +$('score').value;
-  if(st.step<4){
-    $('q'+st.step).style.display='none';
-    st.step++;
-    $('q'+st.step).style.display='block';
-    $('pg').style.width = (st.step*25)+'%';
-    $('pgText').textContent = `第 ${st.step} 步 / 共 4 步`;
-    $('backBtn').style.display='block';
-    $('nextBtn').textContent = st.step===4 ? '看看能上什么大学' : '下一步';
-    refreshBtn();
-  } else {
-    track('表单提交');
-    calc(); render(); go('s3');
-    setTimeout(()=>track('结果页停留10秒'), 10000);
-  }
-}
-function prevQ(){
-  if(st.step>1){
-    $('q'+st.step).style.display='none';
-    st.step--;
-    $('q'+st.step).style.display='block';
-    $('pg').style.width = (st.step*25)+'%';
-    $('pgText').textContent = `第 ${st.step} 步 / 共 4 步`;
-    if(st.step===1) $('backBtn').style.display='none';
-    $('nextBtn').textContent='下一步';
-    refreshBtn();
-  }
+function submit(){
+  st.score = +$('score').value;
+  track('表单提交');
+  calc(); render(); applyCareer(); go('s3');
+  setTimeout(()=>track('结果页停留10秒'), 10000);
 }
 
 /* ============ 演示推荐引擎 ============ */
@@ -458,21 +456,39 @@ function schoolCard(s){
     const pct = m ? +m[0] : null;
     const lv = pct==null ? '' : pct>=90 ? 'lv-hi' : pct>=80 ? 'lv-mid' : 'lv-lo';
     const people = pct==null ? '' : Math.round(pct);
+    const ways = job.way.split('、').slice(0,4).map(w=>`<span class="way-chip">${w}</span>`).join('');
+    const isWarn = job.trend.startsWith('⚠️');
+    const trendTxt = job.trend.replace('⚠️','').trim();
+    // 薪资：解析半年薪资（支持区间），和全国平均 6,435 对比
+    const pm = (job.pay||'').match(/[\d,]{4,}(-[\d,]{3,})?/);
+    const payN = pm ? +pm[0].split('-')[0].replace(/,/g,'') : null;
+    const AVG = 6435;
+    const payPct = payN ? Math.min(100, payN/11000*100) : 0;
+    const avgPct = AVG/11000*100;
+    const after = pm ? (job.pay.split(pm[0])[1]||'') : '';
+    const yearNote = (after.match(/[（(]([^）)]*)[）)]/)||[])[1] || '';
+    const payNote = yearNote ? '毕业半年 · ' + yearNote : '毕业半年';
     jobHtml = `
-      <h4>毕业后干什么<span class="h4-note">全国这类专业的平均情况</span></h4>
-      ${pct?`<div class="rate-big"><b>${job.rate.replace('（待核）','')}</b><span>毕业半年内有了去向<br>（工作或升学都算）</span></div>
+      <h4>毕业后干什么<span class="h4-note">全国这类专业平均</span></h4>
+      ${pct?`<div class="stat-row"><span class="stat-big">${job.rate.replace('（待核）','')}</span><span class="stat-cap">毕业半年内有了去向<br>（工作或升学都算）</span></div>
       <div class="rate-bar"><i class="${lv}" style="width:${pct}%"></i></div>
-      <div class="fact" style="color:#8A94A3">100 个毕业生里，约 ${people} 个半年内有着落</div>`:''}
-      <div class="fact" style="margin-top:6px">主要去向：${job.way}<br>${job.trend}</div>
-      <h4>毕业能拿多少<span class="h4-note">全国这类专业的平均情况</span></h4>
-      <div class="fact">${job.pay}；毕业三年后，全国工科生平均约 10,327 元</div>
+      <div class="cmp-line">100 个毕业生里，约 ${people} 个有着落</div>`:''}
+      <div class="way-chips">${ways}</div>
+      <div class="pill ${isWarn?'warn':'good'}">${isWarn?'⚠️ ':'✓ '}${trendTxt}</div>
+      <h4>毕业能拿多少<span class="h4-note">全国这类专业平均</span></h4>
+      ${payN?`<div class="pay-tiles">
+        <div class="pay-tile"><div class="v">¥${pm[0]}</div><div class="k">${payNote}</div></div>
+        <div class="pay-tile"><div class="v">¥10,327</div><div class="k">毕业三年后<br>（全国工科生平均）</div></div>
+      </div>
+      <div class="cmp-line">对比全国本科平均 ¥6,435<div class="cmp-bar"><i style="width:${payPct}%"></i><u style="left:${avgPct}%"></u></div></div>`
+      :`<div class="fact">${job.pay}</div>`}
       <div class="caveat">以上是全国同类专业的平均情况（第三方机构麦可思调查），不是这所大学的本校数据；本校就业报告可以找老师要。</div>`;
   }
   return `<div class="school-line" onclick="toggleDetail(this)">
       <span class="sl-name">${s.n}<span class="sl-major">${s.major}</span>${s.demo?'<span class="tag-demo">演示数据</span>':''}</span>
       <span class="sl-right"><span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span><span class="sl-chev">详情</span></span>
     </div>
-    <div class="detail">
+    <div class="detail on">
       <h4>近3年录取（山西 · ${st.first}类）</h4>
       <table><tr><th>年份</th><th>最低分</th><th>最低排名</th></tr>${rows}</table>
       ${s.real?`<div class="caveat">★ ${s.real}</div>`:`<div class="caveat">演示估值，正式版接入 2026 全量数据</div>`}
@@ -508,10 +524,8 @@ function render(){
     </div>`;
   }).join('');
 }
-function toggleS4(){ const b=$('s4box'); b.style.display = b.style.display==='none'?'block':'none'; }
-function applyS4(){
+function applyCareer(){
   if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟太原本地老师聊一次，他帮你做三件事：';
-  toggleS4(); track('补充信息');
 }
 function toggleLead(){ $('leadForm').classList.toggle('on'); }
 function submitLead(){
