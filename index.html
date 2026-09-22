@@ -55,6 +55,18 @@
   .locate .sub { font-size:13px; color:var(--mist); }
   /* ===== 三档：榜单式 ===== */
   .tier { background:#fff; border:1px solid var(--hair); border-left:4px solid var(--slate); border-radius:10px; padding:14px 14px 10px; margin-bottom:14px; }
+  /* 档位 Tab */
+  .tier-tabs { display:flex; gap:8px; position:sticky; top:26px; z-index:50; background:var(--paper); padding:8px 0 10px; }
+  .ttab { flex:1; text-align:center; border:1.5px solid var(--hair); background:#fff; border-radius:10px; padding:10px 0 8px; cursor:pointer; user-select:none; }
+  .ttab .tt-name { font-size:15px; font-weight:800; }
+  .ttab .tt-sub { font-size:11px; color:#8A94A3; margin-top:1px; }
+  .ttab .tt-n { font-size:11px; color:#8A94A3; }
+  .ttab.on.chong { border-color:var(--seal); background:#FDECEA; }
+  .ttab.on.chong .tt-name { color:var(--seal); }
+  .ttab.on.wen { border-color:var(--green); background:#E8F5EE; }
+  .ttab.on.wen .tt-name { color:var(--green); }
+  .ttab.on.bao { border-color:var(--slate); background:#EEF1F6; }
+  .ttab.on.bao .tt-name { color:var(--slate); }
   .tier.chong { border-left-color:var(--seal); }
   .tier.wen { border-left-color:var(--green); }
   .tier.bao { border-left-color:var(--slate); }
@@ -77,8 +89,7 @@
   .tag-demo { display:inline-block; background:#FFF7E6; color:#92580A; border-radius:3px; font-size:11px; padding:1px 5px; margin-left:5px; font-weight:400; vertical-align:1px; }
   .reason { font-size:13.5px; color:var(--mist); line-height:1.9; margin-top:8px; border-top:1px dashed var(--hair); padding-top:9px; }
   /* 详情卡 */
-  .detail { display:none; border-top:1px solid var(--hair); margin-top:2px; padding:12px 2px 6px; }
-  .detail.on { display:block; }
+  .detail { border-top:1px solid var(--hair); margin-top:2px; padding:12px 2px 6px; }
   .detail h4 { font-size:14.5px; color:var(--indigo); margin:12px 0 6px; font-weight:700; }
   .detail table { width:100%; border-collapse:collapse; font-size:13px; }
   .detail th, .detail td { border:1px solid var(--hair); padding:7px 6px; text-align:center; font-variant-numeric:tabular-nums; }
@@ -484,23 +495,16 @@ function schoolCard(s){
       :`<div class="fact">${job.pay}</div>`}
       <div class="caveat">以上是全国同类专业的平均情况（第三方机构麦可思调查），不是这所大学的本校数据；本校就业报告可以找老师要。</div>`;
   }
-  return `<div class="school-line" onclick="toggleDetail(this)">
+  return `<div class="school-line">
       <span class="sl-name">${s.n}<span class="sl-major">${s.major}</span>${s.demo?'<span class="tag-demo">演示数据</span>':''}</span>
-      <span class="sl-right"><span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span><span class="sl-chev">详情</span></span>
+      <span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span>
     </div>
-    <div class="detail on">
+    <div class="detail">
       <h4>近3年录取（山西 · ${st.first}类）</h4>
       <table><tr><th>年份</th><th>最低分</th><th>最低排名</th></tr>${rows}</table>
       ${s.real?`<div class="caveat">★ ${s.real}</div>`:`<div class="caveat">演示估值，正式版接入 2026 全量数据</div>`}
       ${jobHtml}
     </div>`;
-}
-function toggleDetail(el){
-  const d = el.nextElementSibling;
-  const was = d.classList.contains('on');
-  d.classList.toggle('on');
-  el.classList.toggle('open', !was);
-  if(!was) track('展开详情:'+el.querySelector('.sl-name').textContent.split('·')[0].trim());
 }
 function render(){
   const b = band(), total = TOTALS[st.first];
@@ -510,19 +514,30 @@ function render(){
   $('locateSub').textContent = `超过全省约 ${pct}% 的考生 · ${estimate.basis}`;
   const used = new Set();
   const tiers = [
-    {name:'冲', desc:'努努力够得着', range:b.chong, dir:'up', cls:'chong'},
-    {name:'稳', desc:'正常发挥基本稳', range:b.wen, dir:'mid', cls:'wen'},
-    {name:'保', desc:'兜底不掉档', range:b.bao, dir:'down', cls:'bao'}
+    {key:'chong', name:'冲', desc:'努努力够得着', range:b.chong, dir:'up', cls:'chong'},
+    {key:'wen', name:'稳', desc:'正常发挥基本稳', range:b.wen, dir:'mid', cls:'wen'},
+    {key:'bao', name:'保', desc:'兜底不掉档', range:b.bao, dir:'down', cls:'bao'}
   ];
-  $('tiers').innerHTML = tiers.map(t=>{
-    const schools = pickSchools(t.range,3,used,t.dir);
-    const first = schools[0], job = first?jobOf(first.major):null;
-    return `<div class="tier ${t.cls}">
-      <div class="t-name">${t.name}<span class="t-tag">${t.desc}</span></div>
-      ${schools.length?schools.map(schoolCard).join(''):'<div class="reason">这个位次段的院校库正在补充，正式版覆盖全量</div>'}
-      ${job?`<div class="reason">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend}</div>`:''}
-    </div>`;
-  }).join('');
+  const data = tiers.map(t=>({...t, schools: pickSchools(t.range,3,used,t.dir)}));
+  // Tab 栏
+  $('tiers').innerHTML = `<div class="tier-tabs" id="ttabs">${data.map((t,i)=>
+    `<div class="ttab ${t.cls}${i===0?' on':''}" onclick="switchTier(${i})">
+      <div class="tt-name">${t.name}</div><div class="tt-sub">${t.desc}</div><div class="tt-n">${t.schools.length} 所</div>
+    </div>`).join('')}</div>
+    <div id="tierBody"></div>`;
+  window._tierData = data;
+  switchTier(0);
+}
+function switchTier(i){
+  const data = window._tierData;
+  document.querySelectorAll('#ttabs .ttab').forEach((el,j)=>el.classList.toggle('on', j===i));
+  const t = data[i];
+  const first = t.schools[0], job = first?jobOf(first.major):null;
+  $('tierBody').innerHTML = `<div class="tier ${t.cls}">
+    ${t.schools.length?t.schools.map(schoolCard).join(''):'<div class="reason">这个位次段的院校库正在补充，正式版覆盖全量</div>'}
+    ${job?`<div class="reason">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend.replace('⚠️','').trim()}</div>`:''}
+  </div>`;
+  track('查看档位:'+t.name);
 }
 function applyCareer(){
   if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟太原本地老师聊一次，他帮你做三件事：';
