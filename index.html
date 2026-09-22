@@ -122,6 +122,14 @@
   .check { text-align:center; font-size:44px; margin:56px 0 12px; color:var(--green); }
   .check-title { text-align:center; font-size:21px; font-weight:800; margin-bottom:10px; }
   .check-sub { text-align:center; color:var(--mist); font-size:14px; line-height:2.1; margin-bottom:26px; }
+  .tiles { display:flex; gap:8px; }
+  .tile { flex:1; background:#F7F9FC; border:1px solid var(--hair); border-radius:10px; padding:10px 8px; text-align:center; }
+  .tile .v { font-size:19px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .tile .k { font-size:11.5px; color:var(--mist); margin-top:3px; line-height:1.5; }
+  .tile.good .v { color:var(--green); }
+  .tile.warn .v { color:var(--amber); }
+  .tiles.wrap { flex-wrap:wrap; }
+  .tiles.wrap .tile { flex-basis:46%; }
   .f-label { font-size:15px; font-weight:700; margin-bottom:9px; }
   /* 就业/薪资 图形化 */
   .stat-row { display:flex; align-items:center; gap:12px; margin:6px 0; }
@@ -480,19 +488,14 @@ function schoolCard(s){
     const yearNote = (after.match(/[（(]([^）)]*)[）)]/)||[])[1] || '';
     const payNote = yearNote ? '毕业半年 · ' + yearNote : '毕业半年';
     jobHtml = `
-      <h4>毕业后干什么<span class="h4-note">全国这类专业平均</span></h4>
-      ${pct?`<div class="stat-row"><span class="stat-big">${job.rate.replace('（待核）','')}</span><span class="stat-cap">毕业半年内有了去向<br>（工作或升学都算）</span></div>
-      <div class="rate-bar"><i class="${lv}" style="width:${pct}%"></i></div>
-      <div class="cmp-line">100 个毕业生里，约 ${people} 个有着落</div>`:''}
-      <div class="way-chips">${ways}</div>
-      <div class="pill ${isWarn?'warn':'good'}">${isWarn?'⚠️ ':'✓ '}${trendTxt}</div>
-      <h4>毕业能拿多少<span class="h4-note">全国这类专业平均</span></h4>
-      ${payN?`<div class="pay-tiles">
-        <div class="pay-tile"><div class="v">¥${pm[0]}</div><div class="k">${payNote}</div></div>
-        <div class="pay-tile"><div class="v">¥10,327</div><div class="k">毕业三年后<br>（全国工科生平均）</div></div>
+      <h4>就业与薪资<span class="h4-note">全国这类专业平均</span></h4>
+      <div class="tiles">
+        <div class="tile ${isWarn?'warn':'good'}"><div class="v">${job.rate.replace('（待核）','')}</div><div class="k">毕业半年<br>有着落</div></div>
+        <div class="tile"><div class="v">${payN?'¥'+pm[0]:'—'}</div><div class="k">${payNote}</div></div>
+        <div class="tile"><div class="v">¥10,327</div><div class="k">三年后<br>（工科平均）</div></div>
       </div>
-      <div class="cmp-line">对比全国本科平均 ¥6,435<div class="cmp-bar"><i style="width:${payPct}%"></i><u style="left:${avgPct}%"></u></div></div>`
-      :`<div class="fact">${job.pay}</div>`}
+      <div class="way-chips" style="margin-top:8px">${ways}</div>
+      <div class="pill ${isWarn?'warn':'good'}">${isWarn?'⚠️ ':'✓ '}${trendTxt}</div>
       <div class="caveat">以上是全国同类专业的平均情况（第三方机构麦可思调查），不是这所大学的本校数据；本校就业报告可以找老师要。</div>`;
   }
   return `<div class="school-line">
@@ -533,10 +536,10 @@ function switchTier(i){
   document.querySelectorAll('#ttabs .ttab').forEach((el,j)=>el.classList.toggle('on', j===i));
   const t = data[i];
   const first = t.schools[0], job = first?jobOf(first.major):null;
-  $('tierBody').innerHTML = `<div class="tier ${t.cls}">
-    ${t.schools.length?t.schools.map(schoolCard).join(''):'<div class="reason">这个位次段的院校库正在补充，正式版覆盖全量</div>'}
-    ${job?`<div class="reason">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend.replace('⚠️','').trim()}</div>`:''}
-  </div>`;
+  $('tierBody').innerHTML = t.schools.length
+    ? t.schools.map(sc=>`<div class="tier ${t.cls}">${schoolCard(sc)}</div>`).join('')
+      + (job?`<div class="reason" style="margin-top:4px">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend.replace('⚠️','').trim()}</div>`:'')
+    : '<div class="tier"><div class="reason">这个位次段的院校库正在补充，正式版覆盖全量</div></div>';
   track('查看档位:'+t.name);
 }
 function applyCareer(){
