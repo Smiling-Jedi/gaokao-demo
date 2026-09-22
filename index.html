@@ -432,13 +432,23 @@ function calc(){
     est = Math.round(st.rankVal*f);
     basis = st.school && SCHOOL_FACTOR[st.school] ? `${st.school}校内校准` : '校排名粗略换算';
   }
-  else { est = scoreToRank(st.score, st.first); widen=1.5; basis = st.rankType==='无' ? '按成绩区间估算（未提供排名）' : '按成绩估算'; }
+  else {
+    const s = +st.score;
+    est = scoreToRank(s, st.first);
+    // 按成绩上下浮动15分查真表得区间（替代旧的±50%拍脑袋带宽）
+    const lo = scoreToRank(Math.min(750, s+15), st.first);
+    const hi = scoreToRank(Math.max(0, s-15), st.first);
+    basis = st.rankType==='无' ? '按成绩估算·上下浮动15分（未提供排名）' : '按成绩估算·上下浮动15分';
+    estimate = {est, widen:1, basis, lo, hi};
+    return;
+  }
   estimate = {est, widen, basis};
 }
 function band(){
   const {est,widen} = estimate;
   return {
-    lo: Math.max(1,Math.round(est*0.95/widen)), hi: Math.round(est*1.05*widen),
+    lo: estimate.lo ?? Math.max(1,Math.round(est*0.95/widen)),
+    hi: estimate.hi ?? Math.round(est*1.05*widen),
     chong:[est*0.55, est*0.95], wen:[est*0.95, est*1.35], bao:[est*1.35, est*2.2]
   };
 }
