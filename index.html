@@ -134,6 +134,21 @@
 .sheet .tiny { font-size:12.5px; color:#8A94A3; text-align:center; margin-top:10px; line-height:1.7; }
 .sheet .x { position:absolute; top:14px; right:16px; color:#8A94A3; font-size:20px; cursor:pointer; padding:4px; }
 
+/* ===== S2.5 分析过程 ===== */
+  .ana-progress { height:4px; background:var(--hair); border-radius:2px; overflow:hidden; margin:20px 0 6px; }
+  .ana-progress i { display:block; height:100%; width:0; background:var(--indigo); border-radius:2px; transition:width .5s ease; }
+  .ana-pct { text-align:right; font-size:13px; color:var(--mist); margin-bottom:16px; }
+  .ana-item { display:flex; gap:12px; align-items:flex-start; padding:13px 2px; border-bottom:1px solid var(--hair); opacity:.38; transition:opacity .3s; }
+  .ana-item.doing, .ana-item.done { opacity:1; }
+  .ana-ic { flex:none; width:22px; height:22px; margin-top:1px; border-radius:50%; position:relative; border:2px solid var(--hair); }
+  .ana-item.doing .ana-ic { border:2.5px solid var(--hair); border-top-color:var(--indigo); animation:anaSpin .7s linear infinite; }
+  .ana-item.done .ana-ic { background:var(--green); border-color:var(--green); }
+  .ana-item.done .ana-ic::after { content:'✓'; position:absolute; inset:0; color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  @keyframes anaSpin { to { transform:rotate(360deg); } }
+  .ana-body { flex:1; }
+  .ana-t { display:block; font-size:15.5px; font-weight:700; line-height:1.5; }
+  .ana-r { display:block; font-size:14px; color:var(--indigo); font-weight:700; margin-top:3px; font-variant-numeric:tabular-nums; }
+
 /* ===== S5 ===== */
   .s5-vals { text-align:left; margin:18px auto 6px; max-width:340px; }
   .s5-val { display:flex; gap:12px; align-items:flex-start; padding:10px 2px; border-bottom:1px solid var(--hair); }
@@ -296,6 +311,16 @@
 
   <div class="hint" id="missHint" style="text-align:center;margin-top:10px"></div>
   <button class="btn secondary" id="nextBtn" onclick="submit()" disabled style="margin-top:8px">看看合适的大学</button>
+</div>
+
+<!-- ================= S2.5 分析过程 ================= -->
+<div class="screen" id="s25">
+  <div class="q-title" style="margin-top:30px">正在为你的孩子分析</div>
+  <div class="q-sub">基于山西 2026 新高考真实录取数据</div>
+  <div class="ana-progress"><i id="anaBar"></i></div>
+  <div class="ana-pct num" id="anaPct">0%</div>
+  <div id="anaItems"></div>
+  <div class="hint" style="text-align:center;margin-top:24px">分析完成后自动展示推荐结果</div>
 </div>
 
 <!-- ================= S3 结果页 ================= -->
@@ -511,9 +536,70 @@ $('schoolName') && $('schoolName').addEventListener('input', e=> st.school=e.tar
 function submit(){
   st.score = +$('score').value;
   track('表单提交');
-  calc(); render(); applyCareer(); go('s3');
-  $('quietBar').style.display='block';
-  setTimeout(()=>track('结果页停留10秒'), 10000);
+  calc();
+  go('s25');
+  runAnalysis();
+}
+
+/* ============ S2.5 分析过程页：逐项展示真实计算的中间结果 ============ */
+function runAnalysis(){
+  track('分析页展示');
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const b = band();
+  const below = estimate.est > ONLINE_2026[st.first];
+  const line = XIAN[st.first]['本科'];
+  let counts = null, totalN = 0;
+  if(!below){
+    const tierData = computeTiers(b);
+    counts = tierData.map(t=>t.schools.length);
+    totalN = counts.reduce((a,c)=>a+c,0);
+  }
+  let gapTxt = '', perTxt = '';
+  if(below){
+    const sc0 = estimate.diffScore ?? (+st.score);
+    gapTxt = `距 2026 本科线（${st.first}类 ${line} 分）约 ${Math.max(1,Math.round(line-sc0))} 分`;
+    perTxt = `每提 1 分约超过 ${(st.first==='物理'?YF_PHY:YF_HIS).ben[0].toLocaleString()} 人`;
+  }
+  const items = [
+    {t:'把成绩换算成全省排名', r:`全省${st.first}类约 ${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()} 名`},
+    {t:`调取山西 2026 ${st.first}类录取数据`, r:`本科线上 ${ONLINE_2026[st.first].toLocaleString()} 人 · 已载入`},
+    below ? {t:'对照官方批次线，定位差距', r:gapTxt}
+          : {t:'对照官方批次线，划分冲/稳/保', r:`特控线 ${XIAN[st.first]['特控']} · 本科线 ${line}`},
+    below ? {t:'分析提分空间', r:perTxt}
+          : {t:'逐校核对就业数据（去向/薪资）', r:`已核对 ${totalN} 所院校`},
+    below ? {t:'生成你的专属定位报告', r:'已完成'}
+          : {t:'生成你的专属定位与推荐清单', r:`冲 ${counts[0]} 所 · 稳 ${counts[1]} 所 · 保 ${counts[2]} 所`}
+  ];
+  $('anaItems').innerHTML = items.map((it,i)=>`<div class="ana-item" id="ana${i}">
+    <span class="ana-ic"></span>
+    <span class="ana-body"><span class="ana-t">${it.t}</span><span class="ana-r"></span></span>
+  </div>`).join('');
+  $('anaBar').style.width = '0%'; $('anaPct').textContent = '0%';
+  const total = items.length;
+  let i = 0;
+  function step(){
+    if(i>0){
+      const prev = $('ana'+(i-1));
+      prev.classList.remove('doing'); prev.classList.add('done');
+      prev.querySelector('.ana-r').textContent = items[i-1].r;
+    }
+    if(i>=total){
+      $('anaBar').style.width = '100%'; $('anaPct').textContent = '100%';
+      track('分析页完成');
+      setTimeout(()=>{
+        render(); applyCareer(); go('s3');
+        $('quietBar').style.display='block';
+        setTimeout(()=>track('结果页停留10秒'), 10000);
+      }, reduced?200:450);
+      return;
+    }
+    $('ana'+i).classList.add('doing');
+    const pct = Math.round(i/total*100);
+    $('anaBar').style.width = pct+'%'; $('anaPct').textContent = pct+'%';
+    i++;
+    setTimeout(step, reduced ? 300 : 1000+Math.random()*600);
+  }
+  step();
 }
 
 /* ============ 演示推荐引擎 ============ */
@@ -647,6 +733,15 @@ function schoolCard(s){
       ${jobHtml}
     </div>`;
 }
+function computeTiers(b){
+  const used = new Set();
+  const tiers = [
+    {key:'chong', name:'冲', desc:'努努力够得着', range:b.chong, dir:'up', cls:'chong'},
+    {key:'wen', name:'稳', desc:'正常发挥基本稳', range:b.wen, dir:'mid', cls:'wen'},
+    {key:'bao', name:'保', desc:'兜底不掉档', range:b.bao, dir:'down', cls:'bao'}
+  ];
+  return tiers.map(t=>({...t, schools: pickSchools(t.range,3,used,t.dir)}));
+}
 function render(){
   const b = band(), total = ONLINE_2026[st.first];
   $('locateText').textContent = `全省${st.first}类约前 ${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()} 名`;
@@ -667,13 +762,7 @@ function render(){
   const rawPct = 100 - b.lo/total*100;
   const pct = rawPct>=99.95 ? '>99.9' : rawPct.toFixed(rawPct<10?1:0);
   $('locateSub').textContent = `超过本科线上约 ${pct}% 的考生 · ${estimate.basis}`;
-  const used = new Set();
-  const tiers = [
-    {key:'chong', name:'冲', desc:'努努力够得着', range:b.chong, dir:'up', cls:'chong'},
-    {key:'wen', name:'稳', desc:'正常发挥基本稳', range:b.wen, dir:'mid', cls:'wen'},
-    {key:'bao', name:'保', desc:'兜底不掉档', range:b.bao, dir:'down', cls:'bao'}
-  ];
-  const data = tiers.map(t=>({...t, schools: pickSchools(t.range,3,used,t.dir)}));
+  const data = computeTiers(b);
   // Tab 栏
   $('tiers').innerHTML = `<div class="tier-tabs" id="ttabs">${data.map((t,i)=>
     `<div class="ttab ${t.cls}${i===0?' on':''}" onclick="switchTier(${i})">
