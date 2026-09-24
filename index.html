@@ -194,6 +194,12 @@
   .cmp-bar u { position:absolute; top:0; bottom:0; width:2px; background:var(--seal); }
   .opt-toggle { font-size:13.5px; color:var(--indigo); padding:13px 2px; border-top:1px dashed var(--hair); cursor:pointer; margin-bottom:10px; }
   .opt-toggle span { float:right; font-size:12.5px; color:#8A94A3; }
+  /* 全量库展开全部：紧凑行 */
+  .dbline { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:8px 2px; border-bottom:1px solid var(--hair); font-size:13px; }
+  .dbline:last-child { border-bottom:none; }
+  .dbl-name { font-weight:600; color:var(--ink); }
+  .dbl-name i { font-style:normal; color:var(--mist); font-weight:400; margin-left:5px; font-size:12px; }
+  .dbl-num { color:var(--mist); font-variant-numeric:tabular-nums; white-space:nowrap; font-size:12px; }
   /* PC 兼顾：不展开宽版，手机版式居中呈现（投流页全端一个样） */
   @media (min-width:900px) {
     body { background:#E8ECF3; }
@@ -203,7 +209,7 @@
 </style>
 </head>
 <body>
-<div class="demo-bar">原型演示版 · 推荐逻辑为演示算法，部分数据为示例，正式版接入 2026 全量录取数据</div>
+<div class="demo-bar">原型演示版 · 院校推荐基于 2025-2026 官方投档真实数据（已剔除专项/预科组）· 就业数据为全国专业级示例</div>
 <div class="pad-top"></div>
 <div class="wrap">
 
@@ -387,6 +393,7 @@
 
 </div>
 
+<script src="db.js"></script>
 <script>
 /* ============ 演示数据（真实锚点 + 示例院校） ============ */
 /* 2026 山西一分一段真表（Grok采集，双源质检97/97一致） */
@@ -557,8 +564,8 @@ function runAnalysis(){
   const line = XIAN[st.first]['本科'];
   let counts = null, totalN = 0;
   if(!below){
-    const tierData = computeTiers(b);
-    counts = tierData.map(t=>t.schools.length);
+    const tierData = computeTiers();
+    counts = tierData.map(t=>t.count);
     totalN = counts.reduce((a,c)=>a+c,0);
   }
   let gapTxt = '', perTxt = '';
@@ -569,7 +576,7 @@ function runAnalysis(){
   }
   const items = [
     {t:'把成绩换算成全省排名', r:`全省${st.first}类约 ${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()} 名`},
-    {t:`调取山西 2026 ${st.first}类录取数据`, r:`本科线上 ${ONLINE_2026[st.first].toLocaleString()} 人 · 已载入`},
+    {t:`调取山西 2026 ${st.first}类录取数据`, r:`本科线上 ${ONLINE_2026[st.first].toLocaleString()} 人 · 录取库 ${DB[st.first].length.toLocaleString()} 条已载入`},
     below ? {t:'对照官方批次线，定位差距', r:gapTxt}
           : {t:'对照官方批次线，划分冲/稳/保', r:`特控线 ${XIAN[st.first]['特控']} · 本科线 ${line}`},
     below ? {t:'分析提分空间', r:perTxt}
@@ -641,19 +648,30 @@ function calc(){
       const diff = sc - line;
       const s = XIAN[st.first][name] + diff;
       est = scoreToRank(s, st.first);
-      const lo = scoreToRank(Math.min(750, s+15), st.first);
-      const hi = scoreToRank(Math.max(0, s-15), st.first);
+      const lo = scoreToRank(Math.min(750, s+10), st.first);
+      const hi = scoreToRank(Math.max(0, s-10), st.first);
       basis = `按超${name}线 ${diff>=0?'+':''}${diff} 分估算`;
       estimate = {est, widen:1, basis, lo, hi, diffScore:s};
       return;
     }
   }
-  if(st.rankType==='省' && st.rankVal){ est=+st.rankVal; basis='按省排名'; }
-  else if(st.rankType==='市' && st.rankVal){ est=Math.round(st.rankVal*3); basis='按市排名估算'; }
+  if(st.rankType==='省' && st.rankVal){
+    est = +st.rankVal; basis = '按省排名';
+    const s0 = rankToScore(est, st.first);
+    estimate = {est, widen:1, basis, lo: scoreToRank(Math.min(750,s0+2), st.first), hi: scoreToRank(Math.max(0,s0-2), st.first)};
+    return;
+  }
+  else if(st.rankType==='市' && st.rankVal){
+    est = Math.round(st.rankVal*3); basis = '按市排名估算·区间已放宽';
+    estimate = {est, widen:1, basis, lo: Math.max(1,Math.round(est*0.8)), hi: Math.round(est*1.25)};
+    return;
+  }
   else if(st.rankType==='校' && st.rankVal){
     const f = SCHOOL_FACTOR[st.school] || 100;
     est = Math.round(st.rankVal*f);
-    basis = st.school && SCHOOL_FACTOR[st.school] ? `按${st.school}校内排名估算` : '按校内排名估算';
+    basis = (st.school && SCHOOL_FACTOR[st.school] ? `按${st.school}校内排名估算` : '按校内排名估算') + '·区间已放宽';
+    estimate = {est, widen:1, basis, lo: Math.max(1,Math.round(est*0.7)), hi: Math.round(est*1.4)};
+    return;
   }
   else {
     const s = +st.score;
@@ -665,36 +683,59 @@ function calc(){
     estimate = {est, widen:1, basis, lo, hi};
     return;
   }
-  estimate = {est, widen, basis};
 }
 function band(){
-  const {est,widen} = estimate;
+  const {est} = estimate;
   return {
-    lo: estimate.lo ?? Math.max(1,Math.round(est*0.95/widen)),
-    hi: estimate.hi ?? Math.round(est*1.05*widen),
-    chong:[est*0.55, est*0.95], wen:[est*0.95, est*1.35], bao:[est*1.35, est*2.2]
+    lo: estimate.lo ?? Math.max(1,Math.round(est*0.95)),
+    hi: estimate.hi ?? Math.round(est*1.05)
   };
 }
 function jobOf(major){
   for(const k in MAJOR_MAP) if(major.includes(k)) return JOB[MAJOR_MAP[k]];
   return null;
 }
-function pickSchools(range, n, used, dir){
-  const pool = SCHOOLS[st.first].filter(s=>!used.has(s.n));
-  const inBand = pool.filter(s=> s.r>=range[0] && s.r<=range[1]);
-  let picked = [...inBand];
-  if(picked.length<n){
-    let extra = [];
-    if(dir==='up')   extra = pool.filter(s=>s.r<range[0]).sort((a,b)=>b.r-a.r);
-    if(dir==='down') extra = pool.filter(s=>s.r>range[1]).sort((a,b)=>a.r-b.r);
-    if(dir==='mid')  extra = pool.filter(s=>!inBand.includes(s)).sort((a,b)=>{
-      const pa = a.r<range[0] ? (range[0]/a.r) : (a.r/range[1]);
-      const pb = b.r<range[0] ? (range[0]/b.r) : (b.r/range[1]);
-      return pa-pb;
-    });
-    for(const s of extra){ if(picked.length>=n) break; picked.push(s); }
-  }
-  const r = picked.slice(0,n); r.forEach(s=>used.add(s.n)); return r;
+/* ============ 全量院校库（db.js：2026官方+2025全量，已剔专项/预科） ============ */
+const RICH = {}; // 演示期富数据（就业/三率），按院校名合并到全量库行上
+Object.keys(SCHOOLS).forEach(t=>SCHOOLS[t].forEach(s=>{ RICH[s.n]=s; }));
+const DB = {'物理': DB_PHY, '历史': DB_HIS};
+
+function rankToScore(rank, track_){ // 位次 → 2026 等效分（一分一段反查）
+  const t = track_==='物理'?YF_PHY:YF_HIS;
+  for(let s=t.topAt; s>=t.base; s--){ if(t.cum[s-t.base] >= rank) return s; }
+  return t.base;
+}
+function tierRanges(){ // 动态分档：按「分」定带宽，再查一分一段换算位次（高分段自动窄/低分段自动宽）
+  const s = rankToScore(estimate.est, st.first);
+  const r = d => scoreToRank(s+d, st.first);
+  return {s, chong:[r(15), r(5)], wen:[r(5), r(-5)], bao:[r(-5), r(-20)]};
+}
+function dbToSchool(row){ // 全量库行 → 卡片统一记录（有富数据的院校自动带就业/三率）
+  const [n,g,r,s26,r26,s25,r25] = row;
+  const rich = RICH[n] || null;
+  const y3 = [];
+  if(s26) y3.push(['2026', String(s26), r26.toLocaleString()]);
+  if(s25) y3.push(['2025', String(s25), r25.toLocaleString()]);
+  return {n, major: rich ? rich.major : g, r, y3, rates: rich ? rich.rates : null, group:g, s26, r26, s25, r25, plain: !rich};
+}
+function computeTiers(){
+  const tr = tierRanges();
+  const pool = DB[st.first];
+  const mk = (key,name,desc,range,cls)=>{
+    const rows = pool.filter(row=>row[2]>=range[0] && row[2]<=range[1]);
+    return {key,name,desc,range,cls,rows,count:new Set(rows.map(r=>r[0])).size}; // count按院校去重（行=专业组，家长按「所」理解）
+  };
+  return [
+    mk('chong','冲','努努力够得着',tr.chong,'chong'),
+    mk('wen','稳','正常发挥基本稳',tr.wen,'wen'),
+    mk('bao','保','兜底不掉档',tr.bao,'bao')
+  ];
+}
+function dbLine(row){ // 展开全部的紧凑行
+  const [n,g,r,s26,r26,s25,r25] = row;
+  const y26 = s26 ? `26年 ${s26}分/${r26.toLocaleString()}名` : '';
+  const y25 = s25 ? `25年 ${s25}分/${r25.toLocaleString()}名` : '';
+  return `<div class="dbline"><span class="dbl-name">${n}<i>${g}</i></span><span class="dbl-num">${[y26,y25].filter(Boolean).join(' · ')}</span></div>`;
 }
 function schoolCard(s){
   const job = jobOf(s.major);
@@ -740,28 +781,22 @@ function schoolCard(s){
   const cid = 'cd' + window._cardCount;
   const keyRate = job ? job.rate.replace('（待核）','') : '—';
   const keyPay = pmKey ? '¥'+pmKey[0] : '—';
+  const s3line = job
+    ? `<span>有着落 <b>${keyRate}</b></span><span>半年薪 <b>${keyPay}</b></span><span>升学 <b>${rt.zs||'—'}</b></span>`
+    : [s.s26?`<span>26年 <b>${s.s26} 分 / ${s.r26.toLocaleString()} 名</b></span>`:'', s.s25?`<span>25年 <b>${s.s25} 分 / ${s.r25.toLocaleString()} 名</b></span>`:''].join('');
   return `<div class="school-line" onclick="toggleCard('${cid}',this)">
-      <span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span>
+      <span class="sl-rank">${s.s26?'2026':'2025'}最低 <b>${s.r.toLocaleString()}</b> 名</span>
       <span class="sl-head"><span class="sl-name">${s.n}</span><span class="sl-dot">·</span><span class="sl-major">${s.major}</span></span>
-      <div class="s3-line"><span>有着落 <b>${keyRate}</b></span><span>半年薪 <b>${keyPay}</b></span><span>升学 <b>${rt.zs||'—'}</b></span></div>
-      <div class="s3-chev">录取年份 / 三率 / 薪酬详情 ▾</div>
+      <div class="s3-line">${s3line}</div>
+      <div class="s3-chev">${job?'录取年份 / 三率 / 薪酬详情':'录取详情'} ▾</div>
     </div>
     <div class="detail" id="${cid}" style="display:none">
-      <h4>近3年录取（山西 · ${st.first}类）</h4>
+      <h4>近两年官方投档（山西 · ${st.first}类）</h4>
       <table><tr><th>年份</th><th>最低分</th><th>最低排名</th></tr>${rows}</table>
       ${rateHtml}
       ${s.real?`<div class="caveat">★ ${s.real}</div>`:''}
       ${jobHtml}
     </div>`;
-}
-function computeTiers(b){
-  const used = new Set();
-  const tiers = [
-    {key:'chong', name:'冲', desc:'努努力够得着', range:b.chong, dir:'up', cls:'chong'},
-    {key:'wen', name:'稳', desc:'正常发挥基本稳', range:b.wen, dir:'mid', cls:'wen'},
-    {key:'bao', name:'保', desc:'兜底不掉档', range:b.bao, dir:'down', cls:'bao'}
-  ];
-  return tiers.map(t=>({...t, schools: pickSchools(t.range,3,used,t.dir)}));
 }
 function render(){
   const b = band(), total = ONLINE_2026[st.first];
@@ -783,13 +818,14 @@ function render(){
   const rawPct = 100 - b.lo/total*100;
   const pct = rawPct>=99.95 ? '>99.9' : rawPct.toFixed(rawPct<10?1:0);
   $('locateSub').textContent = `超过本科线上约 ${pct}% 的考生 · ${estimate.basis}`;
-  const data = computeTiers(b);
+  const data = computeTiers();
   // Tab 栏
   $('tiers').innerHTML = `<div class="tier-tabs" id="ttabs">${data.map((t,i)=>
     `<div class="ttab ${t.cls}${i===0?' on':''}" onclick="switchTier(${i})">
-      <div class="tt-name">${t.name}</div><div class="tt-sub">${t.desc}</div><div class="tt-n">${t.schools.length} 所</div>
+      <div class="tt-name">${t.name}</div><div class="tt-sub">${t.desc}</div><div class="tt-n">${t.count} 所</div>
     </div>`).join('')}</div>
-    <div id="tierBody" style="margin-top:12px"></div>`;
+    <div id="tierBody" style="margin-top:12px"></div>
+    <div class="hint" style="margin-top:8px">官方投档真实数据（2026/2025 两年）· 已剔除专项/预科等普通考生不可报的专业组</div>`;
   window._tierData = data;
   const tb = $('tierBody');
   tb.ontouchstart = e=>{ window._sx = e.touches[0].clientX; };
@@ -817,12 +853,27 @@ function switchTier(i){
   const data = window._tierData;
   document.querySelectorAll('#ttabs .ttab').forEach((el,j)=>el.classList.toggle('on', j===i));
   const t = data[i];
-  const first = t.schools[0], job = first?jobOf(first.major):null;
-  $('tierBody').innerHTML = t.schools.length
-    ? t.schools.map(sc=>`<div class="tier ${t.cls}">${schoolCard(sc)}</div>`).join('')
-
-    : '<div class="tier"><div class="reason">这个排名段的院校库正在补充，正式版覆盖全量</div></div>';
+  const seen = new Set(), top = [];
+  for(const row of t.rows){ if(top.length>=3) break; if(seen.has(row[0])) continue; seen.add(row[0]); top.push(row); } // 前三卡按院校去重，同校不同组进展开列表
+  const rest = t.rows.filter(row=>!top.includes(row));
+  let html;
+  if(!t.rows.length){
+    html = '<div class="tier"><div class="reason">这个排名段近两年无可推荐院校</div></div>';
+  } else {
+    html = top.map(row=>`<div class="tier ${t.cls}">${schoolCard(dbToSchool(row))}</div>`).join('');
+    if(rest.length){
+      html += `<div class="tier"><div class="opt-toggle" style="border-top:none;margin-bottom:0" onclick="toggleRest(this,${t.count})">展开全部 ${t.count} 所 <span>▾</span></div><div class="rest-list" style="display:none">${rest.map(dbLine).join('')}</div></div>`;
+    }
+  }
+  $('tierBody').innerHTML = html;
   track('查看档位:'+t.name);
+}
+function toggleRest(el, n){
+  const box = el.nextElementSibling;
+  const open = box.style.display!=='none';
+  box.style.display = open?'none':'block';
+  el.innerHTML = open ? `展开全部 ${n} 所 <span>▾</span>` : `收起 <span>▴</span>`;
+  if(!open) track('展开全部院校');
 }
 function applyCareer(){
   if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟高考志愿专家聊一次，他帮你做三件事：';
