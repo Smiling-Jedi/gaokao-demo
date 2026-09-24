@@ -7,11 +7,11 @@
 <style>
   /* ===== 设计 token：考试语言（墨蓝+朱红） ===== */
   :root{
-    --paper:#FBFCFE; --ink:#1A2233; --indigo:#1E40AF; --seal:#D4382C;
-    --mist:#5B6572; --hair:#E3E8F0; --green:#157347; --slate:#5B6B7F; --amber:#B45309;
+    --paper:#FBFCFE; --ink:#33415C; --indigo:#4A7FD4; --seal:#D4574B;
+    --mist:#5F6B7F; --hair:#E3E9F2; --green:#2F9E6E; --slate:#6B7A8F; --amber:#B45309;
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#EFF2F7; color:var(--ink); font-feature-settings:"tnum"; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#EFF3F8; color:var(--ink); font-feature-settings:"tnum"; }
   .wrap { max-width:480px; margin:0 auto; min-height:100vh; background:var(--paper); padding-bottom:90px; box-shadow:0 0 24px rgba(26,34,51,.06); }
   .screen { display:none; padding:24px 20px; }
   .screen.on { display:block; }
@@ -41,7 +41,7 @@
   .q-sub { font-size:14.5px; color:var(--mist); margin-bottom:20px; line-height:1.7; }
   .chips { display:flex; gap:10px; flex-wrap:wrap; }
   .chip { flex:1; min-width:70px; text-align:center; background:#fff; border:1.5px solid var(--hair); border-radius:10px; padding:14px 6px; font-size:15px; cursor:pointer; user-select:none; transition:border-color .15s; }
-  .chip.on { border-color:var(--indigo); color:var(--indigo); background:#F0F4FF; font-weight:700; }
+  .chip.on { border-color:var(--indigo); color:var(--indigo); background:#EDF3FC; font-weight:700; }
   .chip.dashed { border-style:dashed; color:#8A94A3; font-size:14px; flex:0 1 auto; min-width:96px; }
   .input-box { width:100%; background:#fff; border:1.5px solid var(--hair); border-radius:10px; padding:15px 16px; font-size:19px; outline:none; font-variant-numeric:tabular-nums; }
   .input-box:focus { border-color:var(--indigo); }
@@ -50,18 +50,18 @@
   .form-nav { display:flex; gap:10px; margin-top:26px; }
   .form-nav .btn { margin:0; }
   /* ===== 结果页：定位卡 ===== */
-  .locate { background:linear-gradient(180deg,#F4F7FF 0%,#FBFCFE 100%); border:1px solid #DCE5FA; border-radius:14px; padding:14px 12px 12px; text-align:center; margin-bottom:12px; }
+  .locate { background:linear-gradient(180deg,#EFF4FC 0%,#FBFCFE 100%); border:1px solid #D8E4F5; border-radius:14px; padding:14px 12px 12px; text-align:center; margin-bottom:12px; }
   .locate .lab { font-size:13px; color:var(--mist); letter-spacing:1px; }
-  .locate .big { font-size:22px; font-weight:800; color:var(--seal); margin:6px 0 4px; line-height:1.35; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
+  .locate .big { font-size:20px; font-weight:800; color:var(--seal); margin:6px 0 4px; line-height:1.35; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
   .locate .sub { font-size:13px; color:var(--mist); }
   /* ===== 三档：榜单式 ===== */
   .tier { background:#fff; border:1px solid var(--hair); border-radius:10px; padding:10px 12px 8px; margin-bottom:10px; }
   /* 档位 Tab */
   .tier-tabs { display:flex; gap:0; position:sticky; top:26px; z-index:50; background:var(--paper); padding:8px 0 0; border-bottom:1px solid var(--hair); }
-  .ttab { flex:1; text-align:center; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-1px; padding:8px 0 9px; cursor:pointer; user-select:none; }
-  .ttab .tt-name { font-size:15px; font-weight:800; }
-  .ttab .tt-sub { font-size:11px; color:#8A94A3; margin-top:1px; }
-  .ttab .tt-n { font-size:11px; color:#8A94A3; }
+  .ttab { flex:1; text-align:center; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-1px; padding:9px 0 10px; cursor:pointer; user-select:none; }
+  .ttab .tt-name { font-size:17px; font-weight:800; }
+  .ttab .tt-sub { font-size:12.5px; color:#8A94A3; margin-top:2px; }
+  .ttab .tt-n { font-size:12.5px; color:#8A94A3; }
   .ttab.on.chong { border-bottom-color:var(--seal); }
   .ttab.on.chong .tt-name, .ttab.on.chong .tt-n { color:var(--seal); }
   .ttab.on.wen { border-bottom-color:var(--green); }
@@ -73,13 +73,16 @@
   .tier.chong .t-tag { background:#FDECEA; color:var(--seal); }
   .tier.wen .t-tag { background:#E8F5EE; color:var(--green); }
   .tier.bao .t-tag { background:#EEF1F6; color:var(--slate); }
-  .school-line { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:11px 2px; border-bottom:1px solid var(--hair); cursor:pointer; }
+  .school-line { display:block; overflow:hidden; padding:11px 2px; border-bottom:1px solid var(--hair); cursor:pointer; }
   .school-line:last-of-type { border-bottom:none; }
   .sl-name { font-size:16px; font-weight:700; }
   .sl-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .s3-line { clear:both; display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; margin-top:7px; font-size:13px; color:var(--mist); }
+  .s3-line b { color:var(--ink); font-size:14px; font-variant-numeric:tabular-nums; }
+  .s3-chev { color:var(--indigo); font-size:13px; margin-top:7px; }
   .sl-dot { color:var(--indigo); font-weight:700; }
   .sl-major { color:var(--indigo); font-weight:700; font-size:15px; }
-  .sl-rank { font-size:14px; color:var(--mist); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .sl-rank { float:right; font-size:14px; color:var(--mist); white-space:nowrap; font-variant-numeric:tabular-nums; margin-top:2px; }
   .sl-rank b { color:var(--ink); font-weight:700; }
   .sl-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:none; }
   .sl-chev { font-size:13px; color:var(--indigo); border:1px solid #B9C7F0; border-radius:20px; padding:2px 10px; white-space:nowrap; }
@@ -107,7 +110,7 @@
   .rate-bar i.lv-mid { background:var(--amber); }
   .rate-bar i.lv-lo { background:var(--seal); }
   /* ===== 留资 ===== */
-  .lead-v3 { background:#fff; border:1px solid var(--hair); border-radius:12px; padding:18px 16px; margin-top:16px; }
+  .lead-v3 { background:#FDEFE2; border:1px solid #F2D9C2; border-radius:12px; padding:18px 16px; margin-top:16px; }
   .lead-v3 .gets { font-size:14px; font-weight:700; margin-bottom:8px; }
   .lead-v3 ul { list-style:none; margin-bottom:14px; }
   .lead-v3 li { font-size:14px; color:var(--mist); line-height:2.1; }
@@ -301,19 +304,19 @@
     <div class="lab">孩子定位（估算）</div>
     <div class="big" id="locateText">—</div>
     <div class="sub" id="locateSub">—</div>
-    <div class="sub" style="margin-top:6px"><a href="javascript:void(0)" onclick="goLead('定位卡')" style="color:var(--indigo);text-decoration:none;font-size:13px">想让这个数更准？山西本地老师免费帮你核一次 →</a></div>
+    <div class="sub" style="margin-top:6px"><a href="javascript:void(0)" onclick="goLead('定位卡')" style="color:var(--indigo);text-decoration:none;font-size:13px">想更准把握？山西高考志愿专家免费帮你 →</a></div>
   </div>
   <div class="tiers-pc" id="tiers"></div>
 
 
   <div class="lead-v3" id="leadCard">
-    <div class="gets" id="leadGets">区间是估算。山西本地老师帮你做三件事：</div>
+    <div class="gets" id="leadGets">区间是估算。山西高考志愿专家帮你做三件事：</div>
     <ul>
       <li>① 精确到专业的报考方向（结合选科、孩子性格、兴趣及单科成绩）</li>
       <li>② 孩子成绩趋势和提分空间分析</li>
       <li>③ 目标院校的真实录取情况及专业就业情况</li>
     </ul>
-    <button class="btn secondary" onclick="goLead('页底卡')">和高考志愿专家沟通（首次免费）</button>
+    <button class="btn primary" onclick="goLead('页底卡')">和高考志愿专家沟通（首次免费）</button>
   </div>
 </div>
 
@@ -321,7 +324,7 @@
 <div class="screen" id="s5">
   <div class="check">✓</div>
   <div class="check-title">收到！</div>
-  <div class="check-sub">山西本地老师将在 <b>24 小时内</b>联系你<br>（来电显示太原号码，请留意接听）</div>
+  <div class="check-sub">高考志愿专家将在 <b>24 小时内</b>联系你<br>（来电显示太原号码，请留意接听）</div>
   <div class="s5-vals">
     <div class="s5-val"><span class="ic">🎯</span><span><span class="vt">聊出方向</span><div class="vd">结合选科、孩子性格和单科成绩，精确到专业的报考方向</div></span></div>
     <div class="s5-val"><span class="ic">📈</span><span><span class="vt">看清提分</span><div class="vd">孩子成绩趋势和提分空间分析</div></span></div>
@@ -335,18 +338,18 @@
 <div class="sheet" id="leadSheet">
   <span class="x" onclick="closeLead()">×</span>
   <div class="grab"></div>
-  <div class="st-t">山西本地老师帮你算准这个区间</div>
+  <div class="st-t">高考志愿专家帮你算准这个区间</div>
   <div class="st-sub">留手机号或微信，24 小时内联系你（首次沟通免费）</div>
   <input id="contact" type="text" inputmode="text" placeholder="手机号 或 微信号">
   <button class="btn primary" onclick="submitLead()">提交</button>
 </div>
 
 <!-- 吸底轻条（结果页安静留资入口） -->
-<div id="quietBar" style="display:none;position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--hair);padding:9px 14px;z-index:98;box-shadow:0 -2px 10px rgba(26,34,51,.05)">
+<div id="quietBar" style="display:none;position:fixed;left:0;right:0;bottom:0;background:#FDEFE2;border-top:1px solid #F2D9C2;padding:9px 14px;z-index:98;box-shadow:0 -2px 12px rgba(51,65,92,.08)">
   <div style="max-width:480px;margin:0 auto;display:flex;align-items:center;gap:10px">
-    <span style="font-size:13px;color:var(--mist);flex:1;line-height:1.5">区间是估算 · 老师帮你算准（首次沟通免费）</span>
-    <button onclick="goLead('吸底条')" style="background:#fff;color:var(--indigo);border:1.5px solid var(--indigo);border-radius:8px;padding:7px 16px;font-size:14px;font-weight:700;flex:none">聊聊</button>
-    <span onclick="closeQuiet()" style="color:#8A94A3;font-size:18px;padding:0 4px;cursor:pointer;flex:none">×</span>
+    <span style="font-size:13.5px;color:var(--ink);font-weight:600;flex:1;line-height:1.5">区间是估算 · 专家帮你算准（首次沟通免费）</span>
+    <button onclick="goLead('吸底条')" style="background:var(--seal);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:700;flex:none">聊聊</button>
+    <span onclick="closeQuiet()" style="color:#B9A08C;font-size:18px;padding:0 4px;cursor:pointer;flex:none">×</span>
   </div>
 </div>
 
@@ -398,7 +401,7 @@ const JOB = {
  '计算机': {rate:'82.4%',way:'互联网公司、AI、政府和企业的 IT 岗位、考公务员',trend:'⚠️ 有着落率排倒数第 11——普通学校的计算机要慎重，能考上 211 以上再报',pay:'6,846 元（2024届，已跌出前 10 名）'},
  '机械': {rate:'94.7%',way:'装备制造、智能制造、车企、机器人',trend:'山西本地的工厂和装备企业就招这个专业',pay:'7,200-7,450 元（2025届薪资前 10 名）'},
  '测控': {rate:'94.9%',way:'仪器仪表、传感器、智能制造',trend:'有着落率在同类专业里排第 3',pay:'7,200-7,450 元（2025届薪资前 10 名）'},
- '会计': {rate:'91.4%',way:'企业财务、会计师事务所、考公务员（岗位非常多）、银行',trend:'考公务员岗位最多的专业之一',pay:'约 5,500-8,000 元（单位不同差别大）'},
+ '会计': {rate:'91.4%',way:'企业财务、会计师事务所、考公务员（岗位非常多）、银行',trend:'考公务员岗位最多的专业之一',pay:'约 5,500-8,000 元（差别大）'},
  '法学': {rate:'75.0%',way:'考公务员（公检法岗位量第一）、律师、企业法务',trend:'⚠️ 有着落率倒数第 1——毕业后还要过司法考试或考研这道关，做好长期投入的准备',pay:'刚入行工资偏低，入行几年后差距拉大'},
  '汉语言': {rate:'80.5%',way:'语文教师（考编制）、考公务员、媒体/出版',trend:'⚠️ 有着落率排倒数第 6，考教师编制是主要出路',pay:'传统文科平均起薪约 4,200-5,800'},
  '英语': {rate:'86.9%（待核）',way:'外贸/跨境电商、教师、翻译',trend:'⚠️ 教培行业萎缩后，纯语言不如以前吃香，「语言+一门技能」更值钱',pay:'5,839 元（2024届，比全国平均低 580 元）'},
@@ -589,6 +592,7 @@ function pickSchools(range, n, used, dir){
 function schoolCard(s){
   const job = jobOf(s.major);
   const rows = s.y3.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+  const pmKey = job ? (job.pay||'').match(/[\d,]{4,}(-[\d,]{3,})?/) : null;
   let jobHtml = '';
   if(job){
     const m = (job.rate||'').match(/[\d.]+/);
@@ -608,15 +612,15 @@ function schoolCard(s){
     const yearNote = (after.match(/[（(]([^）)]*)[）)]/)||[])[1] || '';
     const payNote = yearNote ? '毕业半年 · ' + yearNote : '毕业半年';
     jobHtml = `
-      <h4>未来的职业与薪酬<span class="h4-note">全国这类专业平均</span></h4>
+      <h4>未来的职业与薪酬<span class="h4-note">全国这类专业平均 · 非本校数据（麦可思调查）</span></h4>
       <div class="way-chips" style="margin-bottom:8px">${ways}</div>
       <div class="tiles">
         <div class="tile ${isWarn?'warn':'good'}"><div class="v">${job.rate.replace('（待核）','')}</div><div class="k">毕业半年<br>有着落</div></div>
-        <div class="tile"><div class="v">${payN?'¥'+pm[0]:'—'}</div><div class="k">${payNote}</div></div>
+        <div class="tile"><div class="v"${pm&&pm[0].includes('-')?' style="font-size:15.5px"':''}>${payN?'¥'+pm[0]:'—'}</div><div class="k">${payNote}</div></div>
         <div class="tile"><div class="v">¥10,327</div><div class="k">三年后<br>（工科平均）</div></div>
       </div>
       <div class="pill ${isWarn?'warn':'good'}">${isWarn?'⚠️ ':'✓ '}${trendTxt}</div>
-      <div class="caveat">以上是全国同类专业的平均情况（第三方机构麦可思调查），不是这所大学的本校数据；本校就业报告可以找老师要。</div>`;
+      </div>`;
   }
   const rt = s.rates || {};
   const rTile = (v, y, k) => `<div class="tile"><div class="v">${v||'—'}</div><div class="k">${k}${v&&y?`<br>${y}`:''}</div></div>`;
@@ -625,11 +629,17 @@ function schoolCard(s){
       <div class="tiles">
         ${rTile(rt.zs, rt.zsY, '升学率')}${rTile(rt.by, rt.byY, '保研率')}${rTile(rt.jy, rt.jyY, '就业率')}
       </div>`;
-  return `<div class="school-line">
-      <span class="sl-head"><span class="sl-name">${s.n}</span><span class="sl-dot">·</span><span class="sl-major">${s.major}</span></span>
+  window._cardCount = (window._cardCount||0)+1;
+  const cid = 'cd' + window._cardCount;
+  const keyRate = job ? job.rate.replace('（待核）','') : '—';
+  const keyPay = pmKey ? '¥'+pmKey[0] : '—';
+  return `<div class="school-line" onclick="toggleCard('${cid}',this)">
       <span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span>
+      <span class="sl-head"><span class="sl-name">${s.n}</span><span class="sl-dot">·</span><span class="sl-major">${s.major}</span></span>
+      <div class="s3-line"><span>有着落 <b>${keyRate}</b></span><span>半年薪 <b>${keyPay}</b></span><span>升学 <b>${rt.zs||'—'}</b></span></div>
+      <div class="s3-chev">录取年份 / 三率 / 薪酬详情 ▾</div>
     </div>
-    <div class="detail">
+    <div class="detail" id="${cid}" style="display:none">
       <h4>近3年录取（山西 · ${st.first}类）</h4>
       <table><tr><th>年份</th><th>最低分</th><th>最低排名</th></tr>${rows}</table>
       ${rateHtml}
@@ -649,9 +659,9 @@ function render(){
     $('locateSub').textContent = `该成绩在 2026 本科线（${st.first}类 ${line} 分）以下 · ${estimate.basis}`;
     $('tiers').innerHTML = `<div class="tier" style="border-left-color:var(--amber)">
       <div class="t-name">距本科线还差约 ${gap} 分</div>
-      <div class="reason" style="border-top:none;padding-top:4px">这个分段，每多考 1 分大约超过 ${perPt} 人（2026 高考真实排名）。<br>先提分上线，再选学校——山西本地老师可以帮你分析提分空间。</div>
+      <div class="reason" style="border-top:none;padding-top:4px">这个分段，每多考 1 分大约超过 ${perPt} 人（2026 高考真实排名）。<br>先提分上线，再选学校——高考志愿专家可以帮你分析提分空间。</div>
     </div>`;
-    $('leadGets').textContent = '这个分数段，最值钱的是提分规划。山西本地老师帮你做三件事：';
+    $('leadGets').textContent = '这个分数段，最值钱的是提分规划。高考志愿专家帮你做三件事：';
     return;
   }
   const rawPct = 100 - b.lo/total*100;
@@ -671,21 +681,41 @@ function render(){
     </div>`).join('')}</div>
     <div id="tierBody" style="margin-top:12px"></div>`;
   window._tierData = data;
+  const tb = $('tierBody');
+  tb.ontouchstart = e=>{ window._sx = e.touches[0].clientX; };
+  tb.ontouchend = e=>{
+    if(window._sx==null) return;
+    const dx = e.changedTouches[0].clientX - window._sx;
+    if(Math.abs(dx)<60) return;
+    const n = data.length, cur = window._tierIdx||0;
+    if(dx<0 && cur<n-1) switchTier(cur+1);
+    else if(dx>0 && cur>0) switchTier(cur-1);
+    window._sx = null;
+  };
   switchTier(0);
 }
+function toggleCard(cid, headEl){
+  const d = document.getElementById(cid);
+  const open = d.style.display!=='none';
+  d.style.display = open?'none':'block';
+  const chev = headEl.querySelector('.s3-chev');
+  if(chev) chev.textContent = open?'录取年份 / 三率 / 薪酬详情 ▾':'收起 ▴';
+  if(!open) track('展开详情卡');
+}
 function switchTier(i){
+  window._tierIdx = i;
   const data = window._tierData;
   document.querySelectorAll('#ttabs .ttab').forEach((el,j)=>el.classList.toggle('on', j===i));
   const t = data[i];
   const first = t.schools[0], job = first?jobOf(first.major):null;
   $('tierBody').innerHTML = t.schools.length
     ? t.schools.map(sc=>`<div class="tier ${t.cls}">${schoolCard(sc)}</div>`).join('')
-      + (job?`<div class="reason" style="margin-top:4px">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend.replace('⚠️','').trim()}</div>`:'')
+
     : '<div class="tier"><div class="reason">这个排名段的院校库正在补充，正式版覆盖全量</div></div>';
   track('查看档位:'+t.name);
 }
 function applyCareer(){
-  if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟山西本地老师聊一次，他帮你做三件事：';
+  if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟高考志愿专家聊一次，他帮你做三件事：';
 }
 function toggleLead(){ goLead('页底卡'); }
 function submitLead(){
@@ -712,6 +742,16 @@ function closeLead(){
   if(!window._qbClosed && $('s3').classList.contains('on')) $('quietBar').style.display='block';
 }
 function closeQuiet(){ window._qbClosed=true; $('quietBar').style.display='none'; track('吸底条关闭'); }
+// 留资卡入视口 → 吸底条自动让位；滚走回来（手关过则不复活）
+window._leadObs = new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(window._qbClosed) return;
+    if(!$('s3').classList.contains('on')) return;
+    if(document.getElementById('leadSheet').classList.contains('on')) return;
+    $('quietBar').style.display = e.isIntersecting ? 'none' : 'block';
+  });
+},{threshold:.25});
+window._leadObs.observe(document.getElementById('leadCard'));
 function restart(){ localStorage.removeItem('demo_track'); location.reload(); }
 </script>
 </body>
