@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上个好大学 · 设计方案</title>
+<style>
+  :root{ --paper:#FBFCFE; --ink:#33415C; --indigo:#4A7FD4; --seal:#D4574B; --mist:#5F6B7F; --hair:#E3E9F2; --green:#2F9E6E; --slate:#6B7A8F; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,"PingFang SC",sans-serif; background:#EFF3F8; color:var(--ink); font-feature-settings:"tnum"; }
+  .wrap { max-width:480px; margin:0 auto; background:var(--paper); min-height:100vh; padding:0 0 60px; box-shadow:0 0 24px rgba(51,65,92,.06); }
+  .inner { padding:28px 20px; }
+
+  /* 封面 */
+  .cover { text-align:center; padding:44px 20px 30px; border-bottom:1px solid var(--hair); }
+  .cover .brand { font-size:13px; color:var(--indigo); font-weight:700; letter-spacing:2px; margin-bottom:14px; }
+  .cover h1 { font-size:30px; font-weight:800; letter-spacing:1px; }
+  .cover .slogan { font-size:14.5px; color:var(--mist); margin-top:10px; }
+  .cover .meta { font-size:12.5px; color:#8A94A3; margin-top:16px; }
+
+  /* 章节 */
+  .sec { margin-top:30px; }
+  .sec-no { font-size:12px; color:var(--indigo); font-weight:700; letter-spacing:1px; }
+  .sec-t { font-size:19px; font-weight:800; margin:4px 0 12px; }
+  .sec p, .sec li { font-size:14.5px; line-height:1.9; color:var(--ink); }
+  .sec .dim { color:var(--mist); font-size:13.5px; }
+
+  /* 哲学卡 */
+  .philo { border:1px solid var(--hair); border-radius:10px; padding:13px 14px; margin-bottom:10px; background:#fff; }
+  .philo .pt { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .philo .pt span { color:var(--indigo); margin-right:6px; }
+  .philo p { font-size:13.5px; color:var(--mist); line-height:1.8; }
+  .philo b { color:var(--ink); }
+
+  /* 色板 */
+  .swatches { display:flex; flex-wrap:wrap; gap:8px; }
+  .sw { width:calc(33.3% - 6px); border:1px solid var(--hair); border-radius:8px; overflow:hidden; background:#fff; }
+  .sw i { display:block; height:40px; }
+  .sw span { display:block; font-size:11.5px; color:var(--mist); padding:5px 7px; line-height:1.5; }
+  .sw b { display:block; font-size:12px; color:var(--ink); padding:0 7px 6px; font-variant-numeric:tabular-nums; }
+
+  /* 字号阶梯 */
+  .scale { border:1px solid var(--hair); border-radius:10px; padding:6px 14px; background:#fff; }
+  .scale .row { display:flex; align-items:baseline; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--hair); }
+  .scale .row:last-child { border-bottom:none; }
+  .scale .tag { font-size:11.5px; color:#8A94A3; flex:none; margin-left:12px; }
+
+  /* 规范列表 */
+  .rule { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--hair); font-size:14px; line-height:1.8; }
+  .rule:last-child { border-bottom:none; }
+  .rule .ic { color:var(--indigo); font-weight:700; flex:none; }
+  .rule.no .ic { color:var(--seal); }
+
+  /* 组件小示例 */
+  .demo { background:#fff; border:1px solid var(--hair); border-radius:10px; padding:14px; margin:10px 0; }
+  .demo .cap { font-size:11.5px; color:#8A94A3; margin-bottom:8px; }
+  .chip { display:inline-block; border:1.5px solid var(--hair); border-radius:10px; padding:8px 16px; font-size:14px; margin-right:8px; background:#fff; }
+  .chip.on { border-color:var(--indigo); color:var(--indigo); background:#EDF3FC; font-weight:700; }
+  .chip.dash { border-style:dashed; color:#8A94A3; }
+  .tabs { display:flex; border-bottom:1px solid var(--hair); margin-bottom:12px; }
+  .tab { flex:1; text-align:center; padding:8px 0; font-size:14px; font-weight:700; color:var(--mist); border-bottom:2px solid transparent; margin-bottom:-1px; background:#F7F9FC; }
+  .tab.on { color:var(--seal); border-bottom-color:var(--seal); background:var(--paper); }
+  .scard { border:1px solid var(--hair); border-radius:10px; padding:12px; }
+  .scard .nm { font-size:16px; font-weight:800; }
+  .scard .mj { color:var(--indigo); font-weight:700; font-size:14px; }
+  .scard .rk { float:right; font-size:13px; color:var(--mist); }
+  .scard .rk b { color:var(--ink); }
+  .tiles { display:flex; gap:8px; margin-top:10px; }
+  .tile { flex:1; background:#F7F9FC; border:1px solid var(--hair); border-radius:10px; padding:8px 6px; text-align:center; }
+  .tile .v { font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .tile .k { font-size:11.5px; color:var(--mist); margin-top:2px; }
+  .qbar { border:1px solid var(--hair); border-radius:10px; padding:9px 12px; display:flex; align-items:center; gap:10px; background:#fff; }
+  .qbar .t { font-size:12.5px; color:var(--mist); flex:1; }
+  .qbar .b { border:1.5px solid var(--indigo); color:var(--indigo); border-radius:8px; padding:5px 14px; font-size:13px; font-weight:700; }
+  .sheet-demo { background:#fff; border:1px solid var(--hair); border-radius:16px 16px 0 0; padding:12px 16px 18px; }
+  .sheet-demo .grab { width:36px; height:4px; background:var(--hair); border-radius:2px; margin:0 auto 10px; }
+  .sheet-demo .st { font-size:15px; font-weight:800; margin-bottom:8px; }
+  .sheet-demo .inp { border:1.5px solid var(--hair); border-radius:10px; padding:11px 14px; font-size:14px; color:#8A94A3; margin-bottom:10px; }
+  .sheet-demo .sb { background:var(--seal); color:#fff; text-align:center; border-radius:10px; padding:11px; font-size:15px; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <div class="brand">SGHDX.CN</div>
+  <h1>上个好大学</h1>
+  <div class="slogan">输入孩子成绩，30 秒知道能上什么大学</div>
+  <div class="meta">设计方案 v1.0 · 山西高三版 · 2026-09-24</div>
+</div>
+
+<div class="inner">
+
+<!-- 一、设计哲学 -->
+<div class="sec">
+  <div class="sec-no">01</div>
+  <div class="sec-t">设计哲学</div>
+
+  <div class="philo">
+    <div class="pt"><span>①</span>诚实是最大的风格</div>
+    <p>区间表达，不装精确。每个数字都要经得起家长问「哪来的、哪年的」——无来源不上页面、超 3 年不上页面、没数据就显示「—」。<b>「—」不是残缺，是卖点</b>：宁可空着，不放旧数假数。</p>
+  </div>
+  <div class="philo">
+    <div class="pt"><span>②</span>家长语言，零黑话</div>
+    <p>给山西 40-50 岁家长看，手机为主。禁用：落实率 / 方差 / 位次 / 换算 / 一分一段。必须用的概念就地解释：特控线（原来叫一本线）。</p>
+  </div>
+  <div class="philo">
+    <div class="pt"><span>③</span>安静的商业化</div>
+    <p>留资从「广告」变「答案」——钩子是「区间是估算」这个诚实事实。三原则：<b>不弹窗、不动画、可关闭</b>。「免费」只修饰首次沟通，页面不报价。</p>
+  </div>
+  <div class="philo">
+    <div class="pt"><span>④</span>单页降噪</div>
+    <p>单页表单、可选信息折叠、一个信息只说一遍。产品的本质：把 1,100 所大学筛到 20 所。</p>
+  </div>
+</div>
+
+<!-- 二、色彩 -->
+<div class="sec">
+  <div class="sec-no">02</div>
+  <div class="sec-t">色彩 · 天青系</div>
+  <div class="swatches">
+    <div class="sw"><i style="background:#33415C"></i><span>墨色 正文</span><b>#33415C</b></div>
+    <div class="sw"><i style="background:#4A7FD4"></i><span>靛蓝 品牌/选中</span><b>#4A7FD4</b></div>
+    <div class="sw"><i style="background:#D4574B"></i><span>朱红 关键数/CTA</span><b>#D4574B</b></div>
+    <div class="sw"><i style="background:#2F9E6E"></i><span>绿 稳档/正向</span><b>#2F9E6E</b></div>
+    <div class="sw"><i style="background:#6B7A8F"></i><span>青灰 保档/中性</span><b>#6B7A8F</b></div>
+    <div class="sw"><i style="background:#EFF3F8;border-bottom:1px solid #E3E9F2"></i><span>页面底色</span><b>#EFF3F8</b></div>
+  </div>
+  <p class="dim" style="margin-top:10px">用色纪律：朱红克制——全页只有定位卡位次数字、冲档标识、主按钮能用；档位色只出现在 Tab 上，卡片内不重复标记。</p>
+</div>
+
+<!-- 三、字号 -->
+<div class="sec">
+  <div class="sec-no">03</div>
+  <div class="sec-t">字号阶梯</div>
+  <div class="scale">
+    <div class="row"><span style="font-size:27px;font-weight:800">上个好大学</span><span class="tag">27 Hero</span></div>
+    <div class="row"><span style="font-size:22px;font-weight:800;color:var(--seal)">27,047 名</span><span class="tag">22 关键数字</span></div>
+    <div class="row"><span style="font-size:17px;font-weight:800">太原理工大学</span><span class="tag">17 卡片标题</span></div>
+    <div class="row"><span style="font-size:15px;font-weight:700;color:var(--indigo)">电气工程及其自动化</span><span class="tag">15 专业/标签</span></div>
+    <div class="row"><span style="font-size:14.5px">毕业半年有着落</span><span class="tag">14.5 正文</span></div>
+    <div class="row"><span style="font-size:13px;color:var(--mist)">对照 2026 高考排名</span><span class="tag">13 辅助</span></div>
+    <div class="row"><span style="font-size:12.5px;color:#8A94A3">连续 3 年好就业专业</span><span class="tag">12.5 小标签（下限）</span></div>
+  </div>
+  <p class="dim" style="margin-top:10px">铁律：新组件正文 ≥13px、标签 ≥12.5px——为 45-50 岁家长的眼睛设计。数字等宽对齐（tabular-nums）。</p>
+</div>
+
+<!-- 四、组件 -->
+<div class="sec">
+  <div class="sec-no">04</div>
+  <div class="sec-t">核心组件</div>
+
+  <div class="demo">
+    <div class="cap">选项 chip：选中态 / 虚线=还有别的填法</div>
+    <span class="chip on">物理</span><span class="chip">历史</span><span class="chip dash">有排名？▾</span>
+  </div>
+
+  <div class="demo">
+    <div class="cap">冲稳保 Tab：面板式，指示线压通栏线，未选中浅灰底</div>
+    <div class="tabs"><div class="tab on">冲</div><div class="tab">稳</div><div class="tab">保</div></div>
+    <div class="scard">
+      <span class="rk">最低 <b>28,000</b> 名</span>
+      <span class="nm">太原理工大学</span> <span style="color:var(--indigo)">·</span> <span class="mj">电气工程及其自动化</span>
+      <div class="tiles">
+        <div class="tile"><div class="v">35.6%</div><div class="k">升学率·2024</div></div>
+        <div class="tile"><div class="v">13.3%</div><div class="k">保研率·2026</div></div>
+        <div class="tile"><div class="v">—</div><div class="k">就业率</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo">
+    <div class="cap">吸底轻条：白底细边、不用朱红、可关闭</div>
+    <div class="qbar"><span class="t">区间是估算 · 老师帮你算准（首次沟通免费）</span><span class="b">聊聊</span></div>
+  </div>
+
+  <div class="demo" style="padding-bottom:0;border-bottom:none">
+    <div class="cap">留资底部抽屉：原地滑出，零跳转，点外即关</div>
+    <div class="sheet-demo">
+      <div class="grab"></div>
+      <div class="st">山西本地老师帮你算准这个区间</div>
+      <div class="inp">手机号 或 微信号</div>
+      <div class="sb">提交</div>
+    </div>
+  </div>
+</div>
+
+<!-- 五、数据红线 -->
+<div class="sec">
+  <div class="sec-no">05</div>
+  <div class="sec-t">数据红线（不可妥协）</div>
+  <div class="rule"><span class="ic">✓</span>每个数有来源，经得起「哪来的、哪年的」</div>
+  <div class="rule no"><span class="ic">✕</span>超 3 年的数据——强制显示「—」，付费数据同规则</div>
+  <div class="rule no"><span class="ic">✕</span>无数据编造——占位「—」+「数据核实中」</div>
+  <div class="rule no"><span class="ic">✕</span>假精确——永不显示「录取概率 87.3%」这类数字</div>
+</div>
+
+<!-- 六、版本 -->
+<div class="sec">
+  <div class="sec-no">06</div>
+  <div class="sec-t">版本</div>
+  <p class="dim">v1.0 · 2026-09-22 初版上线（墨蓝考试风）<br>
+  v1.1 · 2026-09-24 专家反馈落地（线差法/职业分组/山西本地老师）<br>
+  v1.2 · 2026-09-24 视觉重构（天青系/面板 Tab/三率模块/底部抽屉）</p>
+</div>
+
+</div>
+</div>
+</body>
+</html>

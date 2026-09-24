@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>测测孩子能上什么大学 · 山西高三版</title>
+<title>上个好大学 · 山西高三版</title>
 <style>
   /* ===== 设计 token：考试语言（墨蓝+朱红） ===== */
   :root{
@@ -17,7 +17,7 @@
   .screen.on { display:block; }
   .num { font-variant-numeric:tabular-nums; }
   /* 演示条 */
-  .demo-bar { position:fixed; top:0; left:0; right:0; background:#FFF7E8; color:#92580A; font-size:11px; text-align:center; padding:5px 8px; z-index:99; border-bottom:1px solid #F3E2B3; }
+  .demo-bar { position:fixed; top:0; left:0; right:0; background:#F5F0E3; color:#8A6D2F; font-size:11px; text-align:center; padding:5px 8px; z-index:99; border-bottom:1px solid #E8DFC5; }
   .pad-top { height:26px; }
   /* ===== S1 首屏 ===== */
   .hero { padding:40px 4px 20px; }
@@ -42,6 +42,7 @@
   .chips { display:flex; gap:10px; flex-wrap:wrap; }
   .chip { flex:1; min-width:70px; text-align:center; background:#fff; border:1.5px solid var(--hair); border-radius:10px; padding:14px 6px; font-size:15px; cursor:pointer; user-select:none; transition:border-color .15s; }
   .chip.on { border-color:var(--indigo); color:var(--indigo); background:#F0F4FF; font-weight:700; }
+  .chip.dashed { border-style:dashed; color:#8A94A3; font-size:14px; flex:0 1 auto; min-width:96px; }
   .input-box { width:100%; background:#fff; border:1.5px solid var(--hair); border-radius:10px; padding:15px 16px; font-size:19px; outline:none; font-variant-numeric:tabular-nums; }
   .input-box:focus { border-color:var(--indigo); }
   .field { margin-bottom:18px; }
@@ -49,27 +50,24 @@
   .form-nav { display:flex; gap:10px; margin-top:26px; }
   .form-nav .btn { margin:0; }
   /* ===== 结果页：定位卡 ===== */
-  .locate { background:linear-gradient(180deg,#F4F7FF 0%,#FBFCFE 100%); border:1px solid #DCE5FA; border-radius:14px; padding:22px 16px 18px; text-align:center; margin-bottom:18px; }
+  .locate { background:linear-gradient(180deg,#F4F7FF 0%,#FBFCFE 100%); border:1px solid #DCE5FA; border-radius:14px; padding:14px 12px 12px; text-align:center; margin-bottom:12px; }
   .locate .lab { font-size:13px; color:var(--mist); letter-spacing:1px; }
-  .locate .big { font-size:26px; font-weight:800; color:var(--seal); margin:10px 0 6px; line-height:1.4; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
+  .locate .big { font-size:22px; font-weight:800; color:var(--seal); margin:6px 0 4px; line-height:1.35; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
   .locate .sub { font-size:13px; color:var(--mist); }
   /* ===== 三档：榜单式 ===== */
-  .tier { background:#fff; border:1px solid var(--hair); border-left:4px solid var(--slate); border-radius:10px; padding:14px 14px 10px; margin-bottom:14px; }
+  .tier { background:#fff; border:1px solid var(--hair); border-radius:10px; padding:10px 12px 8px; margin-bottom:10px; }
   /* 档位 Tab */
-  .tier-tabs { display:flex; gap:8px; position:sticky; top:26px; z-index:50; background:var(--paper); padding:8px 0 10px; }
-  .ttab { flex:1; text-align:center; border:1.5px solid var(--hair); background:#fff; border-radius:10px; padding:10px 0 8px; cursor:pointer; user-select:none; }
+  .tier-tabs { display:flex; gap:0; position:sticky; top:26px; z-index:50; background:var(--paper); padding:8px 0 0; border-bottom:1px solid var(--hair); }
+  .ttab { flex:1; text-align:center; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-1px; padding:8px 0 9px; cursor:pointer; user-select:none; }
   .ttab .tt-name { font-size:15px; font-weight:800; }
   .ttab .tt-sub { font-size:11px; color:#8A94A3; margin-top:1px; }
   .ttab .tt-n { font-size:11px; color:#8A94A3; }
-  .ttab.on.chong { border-color:var(--seal); background:#FDECEA; }
-  .ttab.on.chong .tt-name { color:var(--seal); }
-  .ttab.on.wen { border-color:var(--green); background:#E8F5EE; }
-  .ttab.on.wen .tt-name { color:var(--green); }
-  .ttab.on.bao { border-color:var(--slate); background:#EEF1F6; }
-  .ttab.on.bao .tt-name { color:var(--slate); }
-  .tier.chong { border-left-color:var(--seal); }
-  .tier.wen { border-left-color:var(--green); }
-  .tier.bao { border-left-color:var(--slate); }
+  .ttab.on.chong { border-bottom-color:var(--seal); }
+  .ttab.on.chong .tt-name, .ttab.on.chong .tt-n { color:var(--seal); }
+  .ttab.on.wen { border-bottom-color:var(--green); }
+  .ttab.on.wen .tt-name, .ttab.on.wen .tt-n { color:var(--green); }
+  .ttab.on.bao { border-bottom-color:var(--slate); }
+  .ttab.on.bao .tt-name, .ttab.on.bao .tt-n { color:var(--slate); }
   .tier .t-name { font-weight:800; font-size:15px; margin-bottom:4px; letter-spacing:.3px; }
   .tier .t-tag { display:inline-block; font-size:12px; font-weight:600; border-radius:4px; padding:2px 7px; margin-left:6px; vertical-align:2px; }
   .tier.chong .t-tag { background:#FDECEA; color:var(--seal); }
@@ -78,7 +76,9 @@
   .school-line { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:11px 2px; border-bottom:1px solid var(--hair); cursor:pointer; }
   .school-line:last-of-type { border-bottom:none; }
   .sl-name { font-size:16px; font-weight:700; }
-  .sl-major { display:block; font-size:12.5px; color:#8A94A3; font-weight:400; margin:2px 0 0; }
+  .sl-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .sl-dot { color:var(--indigo); font-weight:700; }
+  .sl-major { color:var(--indigo); font-weight:700; font-size:15px; }
   .sl-rank { font-size:14px; color:var(--mist); white-space:nowrap; font-variant-numeric:tabular-nums; }
   .sl-rank b { color:var(--ink); font-weight:700; }
   .sl-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:none; }
@@ -87,15 +87,15 @@
   .school-line.open .sl-chev::after { transform:rotate(180deg); }
   .school-line:active { background:#F5F7FA; }
   .tag-demo { display:inline-block; background:#FFF7E6; color:#92580A; border-radius:3px; font-size:11px; padding:1px 5px; margin-left:5px; font-weight:400; vertical-align:1px; }
-  .reason { font-size:13.5px; color:var(--mist); line-height:1.9; margin-top:8px; border-top:1px dashed var(--hair); padding-top:9px; }
+  .reason { font-size:13.5px; color:var(--mist); line-height:1.7; margin-top:6px; border-top:1px dashed var(--hair); padding-top:7px; }
   /* 详情卡 */
-  .detail { border-top:1px solid var(--hair); margin-top:2px; padding:12px 2px 6px; }
-  .detail h4 { font-size:14.5px; color:var(--indigo); margin:12px 0 6px; font-weight:700; }
-  .detail table { width:100%; border-collapse:collapse; font-size:13px; }
-  .detail th, .detail td { border:1px solid var(--hair); padding:7px 6px; text-align:center; font-variant-numeric:tabular-nums; }
+  .detail { border-top:1px solid var(--hair); margin-top:2px; padding:8px 2px 4px; }
+  .detail h4 { font-size:14px; color:var(--indigo); margin:8px 0 5px; font-weight:700; }
+  .detail table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .detail th, .detail td { border:1px solid var(--hair); padding:5px 6px; text-align:center; font-variant-numeric:tabular-nums; }
   .detail th { background:#F5F7FA; color:var(--mist); font-weight:600; }
-  .fact { font-size:14px; line-height:2; }
-  .caveat { font-size:12.5px; color:#8A94A3; line-height:1.7; margin-top:8px; border-top:1px dashed var(--hair); padding-top:7px; }
+  .fact { font-size:14px; line-height:1.8; }
+  .caveat { font-size:12.5px; color:#8A94A3; line-height:1.6; margin-top:6px; border-top:1px dashed var(--hair); padding-top:6px; }
   /* 就业可视化 */
   .h4-note { font-size:12.5px; color:#8A94A3; font-weight:400; margin-left:6px; }
   .rate-big { display:flex; align-items:baseline; gap:10px; margin:4px 0 6px; }
@@ -118,7 +118,26 @@
   .lead-form input:focus { border-color:var(--indigo); }
   .mini-lead { text-align:center; margin:14px 0 2px; }
   .mini-lead span { font-size:14px; color:var(--indigo); border-bottom:1px solid #B9C7F0; cursor:pointer; padding-bottom:1px; }
-  /* ===== S5 ===== */
+  /* ===== 留资底部抽屉 ===== */
+.sheet-mask { position:fixed; inset:0; background:rgba(26,34,51,.38); z-index:120; display:none; }
+.sheet-mask.on { display:block; }
+.sheet { position:fixed; left:0; right:0; bottom:0; background:#fff; border-radius:16px 16px 0 0; padding:10px 20px 28px; z-index:121; transform:translateY(105%); transition:transform .25s ease; max-width:480px; margin:0 auto; }
+.sheet.on { transform:translateY(0); }
+.sheet .grab { width:36px; height:4px; background:var(--hair); border-radius:2px; margin:2px auto 14px; }
+.sheet .st-t { font-size:17px; font-weight:800; line-height:1.5; margin-bottom:4px; }
+.sheet .st-sub { font-size:13px; color:var(--mist); margin-bottom:14px; line-height:1.7; }
+.sheet input { width:100%; border:1.5px solid var(--hair); border-radius:10px; padding:14px 16px; font-size:17px; outline:none; margin-bottom:12px; }
+.sheet input:focus { border-color:var(--indigo); }
+.sheet .tiny { font-size:12.5px; color:#8A94A3; text-align:center; margin-top:10px; line-height:1.7; }
+.sheet .x { position:absolute; top:14px; right:16px; color:#8A94A3; font-size:20px; cursor:pointer; padding:4px; }
+
+/* ===== S5 ===== */
+  .s5-vals { text-align:left; margin:18px auto 6px; max-width:340px; }
+  .s5-val { display:flex; gap:12px; align-items:flex-start; padding:10px 2px; border-bottom:1px solid var(--hair); }
+  .s5-val:last-child { border-bottom:none; }
+  .s5-val .ic { font-size:19px; flex:none; width:26px; text-align:center; }
+  .s5-val .vt { font-size:14.5px; font-weight:700; line-height:1.5; }
+  .s5-val .vd { font-size:12.5px; color:var(--mist); margin-top:2px; line-height:1.6; }
   .check { text-align:center; font-size:44px; margin:56px 0 12px; color:var(--green); }
   .check-title { text-align:center; font-size:21px; font-weight:800; margin-bottom:10px; }
   .check-sub { text-align:center; color:var(--mist); font-size:14px; line-height:2.1; margin-bottom:26px; }
@@ -136,8 +155,8 @@
   .stat-big { font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; }
   .stat-cap { font-size:12.5px; color:var(--mist); line-height:1.5; }
   .way-chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px; }
-  .way-chip { font-size:13px; background:#F0F4FF; color:var(--indigo); border-radius:6px; padding:4px 9px; }
-  .pill { display:inline-block; font-size:13.5px; border-radius:8px; padding:7px 10px; line-height:1.6; margin-top:8px; }
+  .way-chip { font-size:13px; background:#EDF3FC; color:var(--indigo); border-radius:6px; padding:4px 9px; }
+  .pill { display:inline-block; font-size:13px; border-radius:8px; padding:5px 10px; line-height:1.5; margin-top:6px; }
   .pill.good { background:#E8F5EE; color:var(--green); }
   .pill.warn { background:#FDF3E7; color:var(--amber); }
   .pay-tiles { display:flex; gap:10px; margin:8px 0 4px; }
@@ -166,14 +185,14 @@
 <!-- ================= S1 首屏 ================= -->
 <div class="screen on" id="s1">
   <div class="hero">
-    <div class="kicker">山西高三专用 · 对照 2026 最新录取排名</div>
+    <div class="kicker">上个好大学 sghdx.cn · 山西高三专用</div>
     <h1>输入孩子成绩<br>30 秒知道能上什么大学</h1>
     <div class="sub">物理 / 历史分列 · 免费查询</div>
   </div>
   <div class="trust-row">
     <div class="trust"><span class="tick">✓</span>对照山西 2026 新高考录取排名（物理/历史分列）</div>
     <div class="trust"><span class="tick">✓</span>推荐理由带真实就业数据：去向、就业率、薪资</div>
-    <div class="trust"><span class="tick">✓</span>太原本地高考志愿专家 1 对 1</div>
+    <div class="trust"><span class="tick">✓</span>山西本地高考志愿专家 1 对 1</div>
   </div>
   <div style="margin-top:28px"><button class="btn primary" onclick="go('s2')">立即免费查询</button></div>
   <div class="note-line">已有 3,862 位山西家长查询（演示数字）</div>
@@ -211,21 +230,34 @@
     </div>
 
     <div class="field">
-      <div class="f-label">③ 最近一次考试总分</div>
-      <input class="input-box" id="score" type="number" inputmode="numeric" placeholder="例如 556（月考/期中/模考都行）" min="0" max="750">
+      <div class="f-label">③ 最近一次考试总分（优先填赋分后的成绩）</div>
+      <input class="input-box" id="score" type="number" inputmode="numeric" placeholder="例如 556" min="0" max="750">
       <div class="hint" id="scorePreview"></div>
     </div>
 
     <div class="field">
-      <div class="f-label">④ 知道孩子的排名吗？</div>
+      <div class="f-label">④ 这次考试，学校划模拟线了吗？</div>
       <div class="chips" style="margin-bottom:10px">
-        <div class="chip" data-v="省" onclick="pickRankType(this,'省')">省排名</div>
-        <div class="chip" data-v="市" onclick="pickRankType(this,'市')">市排名</div>
-        <div class="chip" data-v="校" onclick="pickRankType(this,'校')">校排名</div>
-        <div class="chip" data-v="无" onclick="pickRankType(this,'无')">不知道</div>
+        <div class="chip" data-v="线" onclick="pickRankType(this,'线')">划了</div>
+        <div class="chip" data-v="无" onclick="pickRankType(this,'无')">没划 / 不知道</div>
+        <div class="chip dashed" id="otherRankChip" onclick="toggleOtherRank()">有排名？▾</div>
       </div>
-      <div class="field" id="rankInput" style="display:none;margin-bottom:10px">
+      <div id="lineBox" style="display:none;margin-bottom:6px">
+        <div class="hint" style="margin:0 0 6px">成绩单上一般印着，照抄就行（填其中一条即可）：</div>
+        <div class="field" style="margin-bottom:8px"><input class="input-box" id="lineTK" type="number" inputmode="numeric" placeholder="模拟特控线（原来叫一本线），例如 524"></div>
+        <div class="field" style="margin-bottom:0"><input class="input-box" id="lineBK" type="number" inputmode="numeric" placeholder="模拟本科线，例如 405"></div>
+        <div class="hint" id="linePreview"></div>
+      </div>
+      <div class="field" id="rankInput" style="display:none;margin-bottom:6px">
         <input class="input-box" id="rankVal" type="number" inputmode="numeric" placeholder="名次，例如 120">
+      </div>
+      <div id="otherRankBox" style="display:none;margin-top:2px">
+        <div class="chips" style="margin-bottom:10px">
+          <div class="chip" data-v="省" onclick="pickRankType(this,'省')">省排名</div>
+          <div class="chip" data-v="市" onclick="pickRankType(this,'市')">市排名</div>
+          <div class="chip" data-v="校" onclick="pickRankType(this,'校')">校排名</div>
+          <div class="chip" data-v="无" onclick="pickRankType(this,'无')">都不知道</div>
+        </div>
       </div>
       <div class="field" id="schoolInput" style="display:none;margin-bottom:0">
         <input class="input-box" id="schoolName" list="schoolList" placeholder="所在高中（用于校准，可不留）">
@@ -242,18 +274,25 @@
       <div class="hint" id="noRankHint" style="display:none">没关系，我们按成绩区间估算，结果区间会相应放宽。</div>
     </div>
 
-    <div class="opt-toggle" onclick="toggleOpt()">补充信息（可选）：职业方向 / 目标城市 / 高中 / 再补成绩 <span id="optArrow">展开填写 ▾</span></div>
+    <div class="opt-toggle" onclick="toggleOpt()">补充信息（可选）：多填一项，推荐准一分 <span id="optArrow">展开填写 ▾</span></div>
     <div id="optBox" style="display:none">
-      <div class="field"><div class="hint" style="margin-bottom:6px">职业方向（还没想好也可以选）</div>
-        <div class="chips"><div class="chip" onclick="pick(this,'career')">医生</div><div class="chip" onclick="pick(this,'career')">IT/互联网</div><div class="chip" onclick="pick(this,'career')">体制内</div><div class="chip" data-v="还没想好" onclick="pick(this,'career')">还没想好</div></div>
+      <div class="field"><div class="hint" style="margin-bottom:6px">职业方向（选了的，推荐理由会按这个方向说）</div>
+        <div class="hint" style="margin:0 0 4px;color:#8A94A3">稳定路线</div>
+        <div class="chips" style="margin-bottom:8px"><div class="chip" onclick="pick(this,'career')">考公</div><div class="chip" onclick="pick(this,'career')">央国企</div><div class="chip" onclick="pick(this,'career')">教师</div></div>
+        <div class="hint" style="margin:0 0 4px;color:#8A94A3">专业路线</div>
+        <div class="chips" style="margin-bottom:8px"><div class="chip" onclick="pick(this,'career')">医生</div><div class="chip" onclick="pick(this,'career')">科研路线</div></div>
+        <div class="hint" style="margin:0 0 4px;color:#8A94A3">发展路线</div>
+        <div class="chips"><div class="chip" onclick="pick(this,'career')">民企</div><div class="chip" onclick="pick(this,'career')">新工科</div><div class="chip" data-v="还没想好" onclick="pick(this,'career')">还没想好</div></div>
       </div>
-      <div class="field"><div class="hint" style="margin-bottom:6px">目标就业城市</div>
-        <div class="chips"><div class="chip" onclick="pick(this,'city')">太原</div><div class="chip" onclick="pick(this,'city')">北上广深</div><div class="chip" onclick="pick(this,'city')">新一线</div><div class="chip" onclick="pick(this,'city')">都行</div></div>
+      <div class="field"><div class="hint" style="margin-bottom:6px">目标就业城市（推荐会优先看这个地区的学校）</div>
+        <div class="chips" style="margin-bottom:8px"><div class="chip" onclick="pick(this,'city')">山西本省</div><div class="chip" onclick="pick(this,'city')">北京</div><div class="chip" onclick="pick(this,'city')">上海</div><div class="chip" onclick="pick(this,'city')">广东</div><div class="chip" onclick="pick(this,'city')">江浙</div><div class="chip" onclick="pick(this,'city')">都行</div><div class="chip dashed" id="moreCityChip" onclick="toggleMoreCity()">更多地区 ▾</div></div>
+        <div class="chips" id="moreCityBox" style="display:none"><div class="chip" onclick="pick(this,'city')">天津</div><div class="chip" onclick="pick(this,'city')">西安</div><div class="chip" onclick="pick(this,'city')">川渝</div><div class="chip" onclick="pick(this,'city')">东北</div><div class="chip" onclick="pick(this,'city')">其他</div></div>
       </div>
     </div>
   </div>
 
-  <button class="btn secondary" id="nextBtn" onclick="submit()" disabled style="margin-top:8px">看看能上什么大学</button>
+  <div class="hint" id="missHint" style="text-align:center;margin-top:10px"></div>
+  <button class="btn secondary" id="nextBtn" onclick="submit()" disabled style="margin-top:8px">看看合适的大学</button>
 </div>
 
 <!-- ================= S3 结果页 ================= -->
@@ -262,23 +301,19 @@
     <div class="lab">孩子定位（估算）</div>
     <div class="big" id="locateText">—</div>
     <div class="sub" id="locateSub">—</div>
+    <div class="sub" style="margin-top:6px"><a href="javascript:void(0)" onclick="goLead('定位卡')" style="color:var(--indigo);text-decoration:none;font-size:13px">想让这个数更准？山西本地老师免费帮你核一次 →</a></div>
   </div>
   <div class="tiers-pc" id="tiers"></div>
 
 
-  <div class="lead-v3">
-    <div class="gets" id="leadGets">区间是估算。太原本地老师帮你做三件事：</div>
+  <div class="lead-v3" id="leadCard">
+    <div class="gets" id="leadGets">区间是估算。山西本地老师帮你做三件事：</div>
     <ul>
-      <li>① 精确到专业的报考方案（结合选科和最新招生计划）</li>
+      <li>① 精确到专业的报考方向（结合选科、孩子性格、兴趣及单科成绩）</li>
       <li>② 孩子成绩趋势和提分空间分析</li>
-      <li>③ 目标院校的真实就业报告</li>
+      <li>③ 目标院校的真实录取情况及专业就业情况</li>
     </ul>
-    <button class="btn secondary" onclick="toggleLead(this)">和高考志愿专家沟通（首次免费）</button>
-    <div class="lead-form" id="leadForm">
-      <input id="contact" placeholder="手机号 或 微信号">
-      <button class="btn primary" onclick="submitLead()">提交</button>
-    </div>
-    <div class="tiny">留手机号或微信，24 小时内联系；深入方案为付费服务，电话里详聊，做不做你定</div>
+    <button class="btn secondary" onclick="goLead('页底卡')">和高考志愿专家沟通（首次免费）</button>
   </div>
 </div>
 
@@ -286,8 +321,33 @@
 <div class="screen" id="s5">
   <div class="check">✓</div>
   <div class="check-title">收到！</div>
-  <div class="check-sub">太原本地老师将在 <b>24 小时内</b>联系你<br>（来电显示太原号码，请留意接听）<br><span style="font-size:12px;color:#8A94A3">原型演示：信息仅存在你自己手机本地，未上传</span></div>
+  <div class="check-sub">山西本地老师将在 <b>24 小时内</b>联系你<br>（来电显示太原号码，请留意接听）</div>
+  <div class="s5-vals">
+    <div class="s5-val"><span class="ic">🎯</span><span><span class="vt">聊出方向</span><div class="vd">结合选科、孩子性格和单科成绩，精确到专业的报考方向</div></span></div>
+    <div class="s5-val"><span class="ic">📈</span><span><span class="vt">看清提分</span><div class="vd">孩子成绩趋势和提分空间分析</div></span></div>
+    <div class="s5-val"><span class="ic">🏫</span><span><span class="vt">摸清学校</span><div class="vd">目标院校的真实录取情况和专业就业情况</div></span></div>
+  </div>
   <button class="btn ghost" onclick="restart()">再测一次</button>
+</div>
+
+<!-- 留资底部抽屉 -->
+<div class="sheet-mask" id="sheetMask" onclick="closeLead()"></div>
+<div class="sheet" id="leadSheet">
+  <span class="x" onclick="closeLead()">×</span>
+  <div class="grab"></div>
+  <div class="st-t">山西本地老师帮你算准这个区间</div>
+  <div class="st-sub">留手机号或微信，24 小时内联系你（首次沟通免费）</div>
+  <input id="contact" type="text" inputmode="text" placeholder="手机号 或 微信号">
+  <button class="btn primary" onclick="submitLead()">提交</button>
+</div>
+
+<!-- 吸底轻条（结果页安静留资入口） -->
+<div id="quietBar" style="display:none;position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--hair);padding:9px 14px;z-index:98;box-shadow:0 -2px 10px rgba(26,34,51,.05)">
+  <div style="max-width:480px;margin:0 auto;display:flex;align-items:center;gap:10px">
+    <span style="font-size:13px;color:var(--mist);flex:1;line-height:1.5">区间是估算 · 老师帮你算准（首次沟通免费）</span>
+    <button onclick="goLead('吸底条')" style="background:#fff;color:var(--indigo);border:1.5px solid var(--indigo);border-radius:8px;padding:7px 16px;font-size:14px;font-weight:700;flex:none">聊聊</button>
+    <span onclick="closeQuiet()" style="color:#8A94A3;font-size:18px;padding:0 4px;cursor:pointer;flex:none">×</span>
+  </div>
 </div>
 
 </div>
@@ -298,6 +358,7 @@
 const YF_PHY = {base:401, top:13, topAt:695, ben:[416, 445, 496, 464, 476, 460, 494, 457, 470, 491, 484, 502, 498, 478, 507, 540, 505, 544, 515, 516, 515, 539, 567, 541, 542, 571, 553, 607, 560, 577, 544, 577, 578, 621, 584, 629, 581, 607, 604, 587, 625, 620, 591, 627, 593, 611, 592, 623, 624, 637, 616, 644, 629, 615, 649, 676, 645, 632, 607, 644, 657, 674, 659, 690, 683, 694, 626, 656, 716, 688, 652, 677, 648, 702, 701, 663, 697, 685, 692, 700, 711, 698, 688, 678, 704, 651, 688, 700, 673, 663, 700, 691, 731, 702, 693, 647, 690, 693, 652, 680, 640, 652, 682, 672, 680, 672, 632, 671, 637, 651, 662, 612, 621, 655, 675, 595, 624, 634, 660, 652, 633, 595, 640, 643, 662, 637, 635, 595, 625, 606, 656, 575, 585, 568, 606, 577, 614, 577, 615, 574, 571, 525, 541, 552, 579, 559, 562, 584, 552, 575, 552, 546, 576, 533, 580, 520, 517, 551, 527, 530, 549, 482, 507, 460, 487, 527, 509, 542, 531, 459, 487, 464, 476, 463, 497, 511, 510, 430, 461, 453, 477, 457, 442, 423, 423, 433, 422, 450, 424, 422, 396, 401, 403, 406, 388, 371, 374, 398, 419, 378, 384, 372, 335, 343, 397, 329, 353, 359, 358, 345, 318, 322, 303, 300, 293, 279, 286, 274, 262, 291, 281, 264, 254, 243, 247, 213, 242, 235, 222, 199, 210, 218, 207, 182, 213, 205, 182, 179, 157, 157, 153, 167, 143, 154, 132, 132, 132, 149, 109, 109, 89, 96, 84, 96, 89, 77, 69, 86, 72, 61, 71, 61, 58, 54, 63, 49, 49, 41, 48, 40, 37, 36, 36, 33, 34, 34, 27, 17, 21, 22, 20, 16, 14, 14, 9, 18, 7, 8, 6, 5, 6, 3, 5, 1], cum:[129364, 128948, 128503, 128007, 127543, 127067, 126607, 126113, 125656, 125186, 124695, 124211, 123709, 123211, 122733, 122226, 121686, 121181, 120637, 120122, 119606, 119091, 118552, 117985, 117444, 116902, 116331, 115778, 115171, 114611, 114034, 113490, 112913, 112335, 111714, 111130, 110501, 109920, 109313, 108709, 108122, 107497, 106877, 106286, 105659, 105066, 104455, 103863, 103240, 102616, 101979, 101363, 100719, 100090, 99475, 98826, 98150, 97505, 96873, 96266, 95622, 94965, 94291, 93632, 92942, 92259, 91565, 90939, 90283, 89567, 88879, 88227, 87550, 86902, 86200, 85499, 84836, 84139, 83454, 82762, 82062, 81351, 80653, 79965, 79287, 78583, 77932, 77244, 76544, 75871, 75208, 74508, 73817, 73086, 72384, 71691, 71044, 70354, 69661, 69009, 68329, 67689, 67037, 66355, 65683, 65003, 64331, 63699, 63028, 62391, 61740, 61078, 60466, 59845, 59190, 58515, 57920, 57296, 56662, 56002, 55350, 54717, 54122, 53482, 52839, 52177, 51540, 50905, 50310, 49685, 49079, 48423, 47848, 47263, 46695, 46089, 45512, 44898, 44321, 43706, 43132, 42561, 42036, 41495, 40943, 40364, 39805, 39243, 38659, 38107, 37532, 36980, 36434, 35858, 35325, 34745, 34225, 33708, 33157, 32630, 32100, 31551, 31069, 30562, 30102, 29615, 29088, 28579, 28037, 27506, 27047, 26560, 26096, 25620, 25157, 24660, 24149, 23639, 23209, 22748, 22295, 21818, 21361, 20919, 20496, 20073, 19640, 19218, 18768, 18344, 17922, 17526, 17125, 16722, 16316, 15928, 15557, 15183, 14785, 14366, 13988, 13604, 13232, 12897, 12554, 12157, 11828, 11475, 11116, 10758, 10413, 10095, 9773, 9470, 9170, 8877, 8598, 8312, 8038, 7776, 7485, 7204, 6940, 6686, 6443, 6196, 5983, 5741, 5506, 5284, 5085, 4875, 4657, 4450, 4268, 4055, 3850, 3668, 3489, 3332, 3175, 3022, 2855, 2712, 2558, 2426, 2294, 2162, 2013, 1904, 1795, 1706, 1610, 1526, 1430, 1341, 1264, 1195, 1109, 1037, 976, 905, 844, 786, 732, 669, 620, 571, 530, 482, 442, 405, 369, 333, 300, 266, 232, 205, 188, 167, 145, 125, 109, 95, 81, 72, 54, 47, 39, 33, 28, 22, 19, 14]};
 const YF_HIS = {base:409, top:13, topAt:668, ben:[172, 203, 170, 147, 185, 174, 185, 189, 205, 197, 181, 207, 201, 184, 181, 235, 198, 225, 188, 209, 197, 198, 209, 190, 202, 212, 218, 200, 198, 212, 225, 222, 234, 208, 190, 218, 202, 238, 235, 213, 256, 231, 202, 218, 216, 255, 212, 233, 210, 212, 200, 257, 218, 225, 231, 252, 229, 246, 210, 229, 232, 215, 238, 212, 228, 218, 236, 239, 244, 254, 208, 245, 252, 232, 231, 220, 232, 205, 237, 223, 229, 245, 221, 213, 223, 229, 215, 222, 222, 224, 212, 224, 200, 222, 205, 206, 189, 228, 208, 210, 211, 188, 215, 214, 195, 199, 189, 178, 197, 202, 182, 196, 195, 183, 175, 190, 184, 171, 157, 165, 169, 182, 167, 193, 176, 176, 191, 144, 144, 171, 175, 156, 145, 153, 156, 161, 152, 139, 129, 158, 136, 143, 153, 144, 126, 148, 112, 112, 122, 132, 131, 127, 121, 112, 134, 103, 108, 111, 111, 100, 117, 104, 98, 94, 109, 103, 108, 91, 90, 104, 103, 82, 85, 94, 91, 95, 114, 74, 95, 93, 66, 71, 65, 81, 71, 63, 73, 71, 57, 58, 62, 54, 59, 51, 60, 62, 62, 52, 49, 43, 50, 54, 47, 37, 35, 40, 43, 36, 43, 46, 37, 44, 27, 30, 32, 30, 22, 24, 35, 19, 24, 21, 22, 21, 24, 14, 24, 12, 20, 10, 16, 19, 13, 6, 18, 11, 14, 10, 14, 10, 7, 7, 10, 8, 5, 6, 3, 8, 11, 3, 6, 2, 3, 1, 1, 1, 3, 2, 3], cum:[35387, 35215, 35012, 34842, 34695, 34510, 34336, 34151, 33962, 33757, 33560, 33379, 33172, 32971, 32787, 32606, 32371, 32173, 31948, 31760, 31551, 31354, 31156, 30947, 30757, 30555, 30343, 30125, 29925, 29727, 29515, 29290, 29068, 28834, 28626, 28436, 28218, 28016, 27778, 27543, 27330, 27074, 26843, 26641, 26423, 26207, 25952, 25740, 25507, 25297, 25085, 24885, 24628, 24410, 24185, 23954, 23702, 23473, 23227, 23017, 22788, 22556, 22341, 22103, 21891, 21663, 21445, 21209, 20970, 20726, 20472, 20264, 20019, 19767, 19535, 19304, 19084, 18852, 18647, 18410, 18187, 17958, 17713, 17492, 17279, 17056, 16827, 16612, 16390, 16168, 15944, 15732, 15508, 15308, 15086, 14881, 14675, 14486, 14258, 14050, 13840, 13629, 13441, 13226, 13012, 12817, 12618, 12429, 12251, 12054, 11852, 11670, 11474, 11279, 11096, 10921, 10731, 10547, 10376, 10219, 10054, 9885, 9703, 9536, 9343, 9167, 8991, 8800, 8656, 8512, 8341, 8166, 8010, 7865, 7712, 7556, 7395, 7243, 7104, 6975, 6817, 6681, 6538, 6385, 6241, 6115, 5967, 5855, 5743, 5621, 5489, 5358, 5231, 5110, 4998, 4864, 4761, 4653, 4542, 4431, 4331, 4214, 4110, 4012, 3918, 3809, 3706, 3598, 3507, 3417, 3313, 3210, 3128, 3043, 2949, 2858, 2763, 2649, 2575, 2480, 2387, 2321, 2250, 2185, 2104, 2033, 1970, 1897, 1826, 1769, 1711, 1649, 1595, 1536, 1485, 1425, 1363, 1301, 1249, 1200, 1157, 1107, 1053, 1006, 969, 934, 894, 851, 815, 772, 726, 689, 645, 618, 588, 556, 526, 504, 480, 445, 426, 402, 381, 359, 338, 314, 300, 276, 264, 244, 234, 218, 199, 186, 180, 162, 151, 137, 127, 113, 103, 96, 89, 79, 71, 66, 60, 57, 49, 38, 35, 29, 27, 24, 23, 22, 21, 18, 16]};
 const ONLINE_2026 = {'物理':129364, '历史':35387}; // 2026 本科线上人数（一分一段表尾真值）
+const XIAN = {'物理':{'特控':524,'本科':401}, '历史':{'特控':538,'本科':409}}; // 2026 官方批次线
 const SCHOOL_FACTOR = {
   '山大附中':5,'太原五中':7,'山西省实验中学':7,'知达常青藤':7,'新希望双语':7,
   '太原市外国语学校':12,'太原师院附中':12,'成成中学':12,'太原十二中':12,'现代双语':12,'杏岭实验':12,
@@ -310,9 +371,9 @@ const SCHOOLS = {
   {n:'浙江大学',major:'工科试验班',r:1500,y3:[['2026','—','≈1,500'],['2025','—','≈1,600'],['2024','—','≈1,550']],demo:1},
   {n:'华中科技大学',major:'电气工程及其自动化',r:4200,y3:[['2026','—','≈4,200'],['2025','—','≈4,400'],['2024','—','≈4,300']],demo:1},
   {n:'山东大学',major:'电气类',r:7158,real:'洛沃样品：2025 国家专项组 613 分 / 7,158 名',y3:[['2026','—','≈7,200'],['2025','613','7,158 ★'],['2024','—','≈7,000']]},
-  {n:'西安电子科技大学',major:'电子信息类',r:12000,y3:[['2026','—','≈12,000'],['2025','—','≈12,500'],['2024','—','≈12,200']],demo:1},
-  {n:'太原理工大学',major:'电气工程及其自动化',r:28000,y3:[['2026','—','≈28,000'],['2025','—','≈29,000'],['2024','—','≈28,500']],demo:1},
-  {n:'山西大学',major:'计算机科学与技术',r:45000,y3:[['2026','—','≈45,000'],['2025','—','≈46,000'],['2024','—','≈45,500']],demo:1},
+  {n:'西安电子科技大学',major:'电子信息类',r:12000,rates:{zs:'54.8%',zsY:'2024',by:'25.4%',byY:'2024',jy:'97.04%',jyY:'2024'},y3:[['2026','—','≈12,000'],['2025','—','≈12,500'],['2024','—','≈12,200']],demo:1},
+  {n:'太原理工大学',major:'电气工程及其自动化',r:28000,rates:{zs:'35.6%',zsY:'2024',by:'13.3%',byY:'2026'},y3:[['2026','—','≈28,000'],['2025','—','≈29,000'],['2024','—','≈28,500']],demo:1},
+  {n:'山西大学',major:'计算机科学与技术',r:45000,rates:{zs:'28.7%',zsY:'2024',by:'12.7%',byY:'2024',jy:'82.63%',jyY:'2023'},y3:[['2026','—','≈45,000'],['2025','—','≈46,000'],['2024','—','≈45,500']],demo:1},
   {n:'山西财经大学',major:'会计学',r:52000,y3:[['2026','—','≈52,000'],['2025','—','≈53,000'],['2024','—','≈52,500']],demo:1},
   {n:'中北大学',major:'测控技术与仪器',r:65000,y3:[['2026','—','≈65,000'],['2025','—','≈66,000'],['2024','—','≈65,500']],demo:1},
   {n:'太原科技大学',major:'机械设计制造及其自动化',r:90000,y3:[['2026','—','≈90,000'],['2025','—','≈92,000'],['2024','—','≈91,000']],demo:1},
@@ -322,7 +383,7 @@ const SCHOOLS = {
   {n:'北京大学',major:'法学（国家专项）',r:256,real:'洛沃样品：2025 国家专项 640 分 / 256 名',y3:[['2026','—','≈260'],['2025','640','256 ★'],['2024','—','≈250']]},
   {n:'山东大学',major:'法学类',r:894,real:'洛沃样品：2025 不限组 618 分 / 894 名',y3:[['2026','—','≈900'],['2025','618','894 ★'],['2024','—','≈880']]},
   {n:'吉林大学',major:'英语',r:1485,real:'洛沃样品：2026 603 分 / 1,485 名',y3:[['2026','603','1,485 ★'],['2025','608','1,392 ★'],['2024','594','≈620 ★']]},
-  {n:'山西大学',major:'汉语言文学',r:6000,y3:[['2026','—','≈6,000'],['2025','—','≈6,200'],['2024','—','≈6,100']],demo:1},
+  {n:'山西大学',major:'汉语言文学',r:6000,rates:{zs:'28.7%',zsY:'2024',by:'12.7%',byY:'2024',jy:'82.63%',jyY:'2023'},y3:[['2026','—','≈6,000'],['2025','—','≈6,200'],['2024','—','≈6,100']],demo:1},
   {n:'山西财经大学',major:'金融学',r:12000,y3:[['2026','—','≈12,000'],['2025','—','≈12,500'],['2024','—','≈12,200']],demo:1},
   {n:'太原师范学院',major:'小学教育',r:25000,y3:[['2026','—','≈25,000'],['2025','—','≈26,000'],['2024','—','≈25,500']],demo:1},
   {n:'山西师范大学',major:'历史学（师范）',r:30000,y3:[['2026','—','≈30,000'],['2025','—','≈31,000'],['2024','—','≈30,500']],demo:1},
@@ -349,7 +410,7 @@ const JOB = {
 const MAJOR_MAP = {'电气':'电气','能源':'能源','电子':'电子','计算机':'计算机','软件':'计算机','机械':'机械','测控':'测控','会计':'会计','法学':'法学','汉语言':'汉语言','英语':'英语','金融':'金融','农':'农学','教育':'教育','医':'医学','临床':'医学','工科试验':'电子'};
 
 /* ============ 状态 ============ */
-const st = {gender:'',first:'',second:[],score:'',rankType:'',rankVal:'',school:'',career:'',city:'',step:1};
+const st = {gender:'',first:'',second:[],score:'',rankType:'',rankVal:'',lineTK:'',lineBK:'',school:'',career:'',city:'',step:1};
 let estimate = null, firstTrack = true;
 const $ = id => document.getElementById(id);
 function track(ev){ try{ const log = JSON.parse(localStorage.getItem('demo_track')||'[]'); log.push({ev,t:Date.now(),utm:location.search}); localStorage.setItem('demo_track',JSON.stringify(log)); }catch(e){} }
@@ -362,10 +423,17 @@ function go(id){
   if(id==='s2' && firstTrack){ track('开始填写'); firstTrack=false; }
 }
 function pick(el,key){
-  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  const scope = (key==='career'||key==='city') ? el.closest('.field') : el.parentElement;
+  scope.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
   st[key] = el.dataset.v || el.textContent.trim();
   refreshBtn();
+}
+function toggleMoreCity(){
+  const b = $('moreCityBox');
+  const open = b.style.display!=='none';
+  b.style.display = open?'none':'block';
+  $('moreCityChip').textContent = open?'更多地区 ▾':'收起 ▴';
 }
 function pick2(el){
   const v = el.dataset.v;
@@ -374,28 +442,55 @@ function pick2(el){
   refreshBtn();
 }
 function pickRankType(el,v){
-  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  ['线','省','市','校','无'].forEach(x=>{
+    document.querySelectorAll(`.chip[data-v="${x}"]`).forEach(c=>c.classList.remove('on'));
+  });
   el.classList.add('on');
-  st.rankType = v;
+  st.rankType = v; st.rankVal=''; $('rankVal').value='';
+  $('lineBox').style.display = (v==='线') ? 'block':'none';
   $('rankInput').style.display = (v==='省'||v==='市'||v==='校') ? 'block':'none';
   $('schoolInput').style.display = (v==='校') ? 'block':'none';
   $('noRankHint').style.display = (v==='无') ? 'block':'none';
   refreshBtn();
 }
+function linePreviewUpdate(){
+  const sc = +$('score').value, tk = +$('lineTK').value, bk = +$('lineBK').value;
+  const el = $('linePreview');
+  if(!sc || !st.first || (!tk && !bk)){ el.textContent=''; return; }
+  const useTK = tk && (sc >= tk-30 || !bk);
+  const line = useTK ? tk : bk, name = useTK ? '特控' : '本科';
+  const diff = sc - line;
+  const s2026 = XIAN[st.first][name] + diff;
+  const r = scoreToRank(s2026, st.first);
+  el.textContent = `${sc} − ${line} = 超${name}线 ${diff>=0?'+':''}${diff} 分 → 对照 2026 高考全省排名：约 ${r.toLocaleString()} 名`;
+}
+function toggleOtherRank(){
+  const b = $('otherRankBox');
+  const open = b.style.display!=='none';
+  b.style.display = open?'none':'block';
+  $('otherRankChip').textContent = open?'有排名？▾':'收起 ▴';
+}
 function refreshBtn(){
   const ok = !!st.gender && !!st.first && st.second.length===2
     && $('score').value!=='' && st.score>=0 && st.score<=750 && !!st.rankType;
   $('nextBtn').disabled = !ok;
+  const miss = [];
+  if(!st.gender) miss.push('① 性别');
+  if(!st.first) miss.push('② 选科');
+  else if(st.second.length<2) miss.push('② 再选'+(2-st.second.length)+'科');
+  if($('score').value==='') miss.push('③ 总分');
+  if(!st.rankType) miss.push('④ 划线情况');
+  const mh = $('missHint'); if(mh) mh.textContent = miss.length ? '还差：'+miss.join('、') : '';
   if(st.first) $('secondRow').style.display='block';
   // 分数即时排名预览（对照一分一段）
   const v = $('score').value;
   if(v && st.first && v>0 && v<=750){
     const t = st.first==='物理'?YF_PHY:YF_HIS, s = Math.round(+v);
-    if(s >= t.topAt) $('scorePreview').textContent = `对照 2026 一分一段：全省${st.first}类前 ${t.top} 名`;
+    if(s >= t.topAt) $('scorePreview').textContent = `对照 2026 高考排名：全省${st.first}类前 ${t.top} 名`;
     else if(s >= t.base){
       const hi = t.cum[s-t.base], lo = hi - t.ben[s-t.base] + 1;
-      $('scorePreview').textContent = `对照 2026 一分一段：全省${st.first}类 ${lo.toLocaleString()}~${hi.toLocaleString()} 名（同分 ${t.ben[s-t.base].toLocaleString()} 人）`;
-    } else $('scorePreview').textContent = '对照 2026 一分一段：该分数在本科线以下，排名仅供参考';
+      $('scorePreview').textContent = `对照 2026 高考排名：全省${st.first}类 ${lo.toLocaleString()}~${hi.toLocaleString()} 名（同分 ${t.ben[s-t.base].toLocaleString()} 人）`;
+    } else $('scorePreview').textContent = '对照 2026 高考排名：该分数在本科线以下，排名仅供参考';
   } else $('scorePreview').textContent = st.first ? '' : '先选选科，这里会即时显示对应的全省排名';
 }
 function toggleOpt(){
@@ -404,14 +499,17 @@ function toggleOpt(){
   b.style.display = open?'none':'block';
   $('optArrow').textContent = open?'展开填写 ▾':'收起 ▴';
 }
-$('score') && $('score').addEventListener('input', e=>{ st.score=e.target.value; refreshBtn(); });
+$('score') && $('score').addEventListener('input', e=>{ st.score=e.target.value; refreshBtn(); linePreviewUpdate(); });
 $('rankVal') && $('rankVal').addEventListener('input', e=> st.rankVal=e.target.value);
+$('lineTK') && $('lineTK').addEventListener('input', e=>{ st.lineTK=e.target.value; linePreviewUpdate(); });
+$('lineBK') && $('lineBK').addEventListener('input', e=>{ st.lineBK=e.target.value; linePreviewUpdate(); });
 $('schoolName') && $('schoolName').addEventListener('input', e=> st.school=e.target.value);
 
 function submit(){
   st.score = +$('score').value;
   track('表单提交');
   calc(); render(); applyCareer(); go('s3');
+  $('quietBar').style.display='block';
   setTimeout(()=>track('结果页停留10秒'), 10000);
 }
 
@@ -425,12 +523,27 @@ function scoreToRank(score, track_){
 }
 function calc(){
   let est, widen=1, basis='';
+  if(st.rankType==='线'){
+    const sc = +st.score, tk = +st.lineTK, bk = +st.lineBK;
+    if(tk || bk){
+      const useTK = tk && (sc >= tk-30 || !bk);   // 表姐夫规则：特控附近用特控差，本科线上50以内用本科差
+      const line = useTK ? tk : bk, name = useTK ? '特控' : '本科';
+      const diff = sc - line;
+      const s = XIAN[st.first][name] + diff;
+      est = scoreToRank(s, st.first);
+      const lo = scoreToRank(Math.min(750, s+15), st.first);
+      const hi = scoreToRank(Math.max(0, s-15), st.first);
+      basis = `按超${name}线 ${diff>=0?'+':''}${diff} 分估算`;
+      estimate = {est, widen:1, basis, lo, hi, diffScore:s};
+      return;
+    }
+  }
   if(st.rankType==='省' && st.rankVal){ est=+st.rankVal; basis='按省排名'; }
-  else if(st.rankType==='市' && st.rankVal){ est=Math.round(st.rankVal*3); basis='市排名换算'; }
+  else if(st.rankType==='市' && st.rankVal){ est=Math.round(st.rankVal*3); basis='按市排名估算'; }
   else if(st.rankType==='校' && st.rankVal){
     const f = SCHOOL_FACTOR[st.school] || 100;
     est = Math.round(st.rankVal*f);
-    basis = st.school && SCHOOL_FACTOR[st.school] ? `${st.school}校内校准` : '校排名粗略换算';
+    basis = st.school && SCHOOL_FACTOR[st.school] ? `按${st.school}校内排名估算` : '按校内排名估算';
   }
   else {
     const s = +st.score;
@@ -438,7 +551,7 @@ function calc(){
     // 按成绩上下浮动15分查真表得区间（替代旧的±50%拍脑袋带宽）
     const lo = scoreToRank(Math.min(750, s+15), st.first);
     const hi = scoreToRank(Math.max(0, s-15), st.first);
-    basis = st.rankType==='无' ? '按成绩估算·上下浮动15分（未提供排名）' : '按成绩估算·上下浮动15分';
+    basis = '按成绩估算·上下浮动15分';
     estimate = {est, widen:1, basis, lo, hi};
     return;
   }
@@ -495,32 +608,54 @@ function schoolCard(s){
     const yearNote = (after.match(/[（(]([^）)]*)[）)]/)||[])[1] || '';
     const payNote = yearNote ? '毕业半年 · ' + yearNote : '毕业半年';
     jobHtml = `
-      <h4>就业与薪资<span class="h4-note">全国这类专业平均</span></h4>
+      <h4>未来的职业与薪酬<span class="h4-note">全国这类专业平均</span></h4>
+      <div class="way-chips" style="margin-bottom:8px">${ways}</div>
       <div class="tiles">
         <div class="tile ${isWarn?'warn':'good'}"><div class="v">${job.rate.replace('（待核）','')}</div><div class="k">毕业半年<br>有着落</div></div>
         <div class="tile"><div class="v">${payN?'¥'+pm[0]:'—'}</div><div class="k">${payNote}</div></div>
         <div class="tile"><div class="v">¥10,327</div><div class="k">三年后<br>（工科平均）</div></div>
       </div>
-      <div class="way-chips" style="margin-top:8px">${ways}</div>
       <div class="pill ${isWarn?'warn':'good'}">${isWarn?'⚠️ ':'✓ '}${trendTxt}</div>
       <div class="caveat">以上是全国同类专业的平均情况（第三方机构麦可思调查），不是这所大学的本校数据；本校就业报告可以找老师要。</div>`;
   }
+  const rt = s.rates || {};
+  const rTile = (v, y, k) => `<div class="tile"><div class="v">${v||'—'}</div><div class="k">${k}${v&&y?`<br>${y}`:''}</div></div>`;
+  const rateHtml = `
+      <h4>这所学校的学生去向<span class="h4-note">${s.rates?'校方公布':'数据核实中'}</span></h4>
+      <div class="tiles">
+        ${rTile(rt.zs, rt.zsY, '升学率')}${rTile(rt.by, rt.byY, '保研率')}${rTile(rt.jy, rt.jyY, '就业率')}
+      </div>`;
   return `<div class="school-line">
-      <span class="sl-name">${s.n}<span class="sl-major">${s.major}</span>${s.demo?'<span class="tag-demo">演示数据</span>':''}</span>
+      <span class="sl-head"><span class="sl-name">${s.n}</span><span class="sl-dot">·</span><span class="sl-major">${s.major}</span></span>
       <span class="sl-rank">最低 <b>${s.r.toLocaleString()}</b> 名</span>
     </div>
     <div class="detail">
       <h4>近3年录取（山西 · ${st.first}类）</h4>
       <table><tr><th>年份</th><th>最低分</th><th>最低排名</th></tr>${rows}</table>
-      ${s.real?`<div class="caveat">★ ${s.real}</div>`:`<div class="caveat">演示估值，正式版接入 2026 全量数据</div>`}
+      ${rateHtml}
+      ${s.real?`<div class="caveat">★ ${s.real}</div>`:''}
       ${jobHtml}
     </div>`;
 }
 function render(){
   const b = band(), total = ONLINE_2026[st.first];
+  $('locateText').textContent = `全省${st.first}类约前 ${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()} 名`;
+  if(estimate.est > total){
+    // 本科线以下专用状态：提分叙事，不给够不着的学校
+    const line = XIAN[st.first]['本科'];
+    const sc0 = estimate.diffScore ?? (+st.score);
+    const gap = Math.max(1, Math.round(line - sc0));
+    const perPt = (st.first==='物理'?YF_PHY:YF_HIS).ben[0];
+    $('locateSub').textContent = `该成绩在 2026 本科线（${st.first}类 ${line} 分）以下 · ${estimate.basis}`;
+    $('tiers').innerHTML = `<div class="tier" style="border-left-color:var(--amber)">
+      <div class="t-name">距本科线还差约 ${gap} 分</div>
+      <div class="reason" style="border-top:none;padding-top:4px">这个分段，每多考 1 分大约超过 ${perPt} 人（2026 高考真实排名）。<br>先提分上线，再选学校——山西本地老师可以帮你分析提分空间。</div>
+    </div>`;
+    $('leadGets').textContent = '这个分数段，最值钱的是提分规划。山西本地老师帮你做三件事：';
+    return;
+  }
   const rawPct = 100 - b.lo/total*100;
   const pct = rawPct>=99.95 ? '>99.9' : rawPct.toFixed(rawPct<10?1:0);
-  $('locateText').textContent = `全省${st.first}类约前 ${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()} 名`;
   $('locateSub').textContent = `超过本科线上约 ${pct}% 的考生 · ${estimate.basis}`;
   const used = new Set();
   const tiers = [
@@ -534,7 +669,7 @@ function render(){
     `<div class="ttab ${t.cls}${i===0?' on':''}" onclick="switchTier(${i})">
       <div class="tt-name">${t.name}</div><div class="tt-sub">${t.desc}</div><div class="tt-n">${t.schools.length} 所</div>
     </div>`).join('')}</div>
-    <div id="tierBody"></div>`;
+    <div id="tierBody" style="margin-top:12px"></div>`;
   window._tierData = data;
   switchTier(0);
 }
@@ -546,13 +681,13 @@ function switchTier(i){
   $('tierBody').innerHTML = t.schools.length
     ? t.schools.map(sc=>`<div class="tier ${t.cls}">${schoolCard(sc)}</div>`).join('')
       + (job?`<div class="reason" style="margin-top:4px">💬 ${first.major}：毕业有着落 ${job.rate}，${job.trend.replace('⚠️','').trim()}</div>`:'')
-    : '<div class="tier"><div class="reason">这个位次段的院校库正在补充，正式版覆盖全量</div></div>';
+    : '<div class="tier"><div class="reason">这个排名段的院校库正在补充，正式版覆盖全量</div></div>';
   track('查看档位:'+t.name);
 }
 function applyCareer(){
-  if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟太原本地老师聊一次，他帮你做三件事：';
+  if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟山西本地老师聊一次，他帮你做三件事：';
 }
-function toggleLead(){ $('leadForm').classList.toggle('on'); }
+function toggleLead(){ goLead('页底卡'); }
 function submitLead(){
   const v = $('contact').value.trim();
   if(v.length<5){ $('contact').style.borderColor='#D4382C'; return; }
@@ -561,8 +696,22 @@ function submitLead(){
     leads.push({contact:v, form:st, estimate, track:JSON.parse(localStorage.getItem('demo_track')||'[]'), t:Date.now()});
     localStorage.setItem('demo_leads',JSON.stringify(leads));
   }catch(e){}
+  $('sheetMask').classList.remove('on'); $('leadSheet').classList.remove('on');
   track('留资提交'); go('s5');
 }
+function goLead(src){
+  track('轻入口点击:'+src);
+  $('quietBar').style.display='none';
+  $('sheetMask').classList.add('on');
+  $('leadSheet').classList.add('on');
+  setTimeout(()=>$('contact').focus(), 260);
+}
+function closeLead(){
+  $('sheetMask').classList.remove('on');
+  $('leadSheet').classList.remove('on');
+  if(!window._qbClosed && $('s3').classList.contains('on')) $('quietBar').style.display='block';
+}
+function closeQuiet(){ window._qbClosed=true; $('quietBar').style.display='none'; track('吸底条关闭'); }
 function restart(){ localStorage.removeItem('demo_track'); location.reload(); }
 </script>
 </body>
