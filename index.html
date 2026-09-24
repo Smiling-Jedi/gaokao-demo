@@ -148,14 +148,9 @@
   .ana-body { flex:1; }
   .ana-t { display:block; font-size:15.5px; font-weight:700; line-height:1.5; }
   .ana-r { display:block; font-size:14px; color:var(--indigo); font-weight:700; margin-top:3px; font-variant-numeric:tabular-nums; }
-  .ana-done { display:none; text-align:center; margin-top:26px; }
-  .ana-done.on { display:block; animation:anaPop .35s ease both; }
-  .ana-done .ck { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--green); color:#fff; font-size:18px; font-weight:800; margin-bottom:8px; }
-  .ana-done .tx { font-size:15px; font-weight:700; color:var(--green); }
-  @keyframes anaPop { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
-  /* 结果页入场：淡入+轻微上移，接住分析页的完成节拍 */
-  .screen.fadein { animation:screenIn .45s ease both; }
-  @keyframes screenIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  /* 结果页入场：淡入+轻微上移，接住分析页 */
+  .screen.fadein { animation:screenIn .5s ease both; }
+  @keyframes screenIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 
 /* ===== S5 ===== */
   .s5-vals { text-align:left; margin:18px auto 6px; max-width:340px; }
@@ -328,8 +323,7 @@
   <div class="ana-progress"><i id="anaBar"></i></div>
   <div class="ana-pct num" id="anaPct">0%</div>
   <div id="anaItems"></div>
-  <div class="ana-done" id="anaDone"><div class="ck">✓</div><div class="tx" id="anaDoneTx">分析完成</div></div>
-  <div class="hint" id="anaHint" style="text-align:center;margin-top:24px">分析完成后自动展示推荐结果</div>
+  <div class="hint" style="text-align:center;margin-top:24px">分析完成后自动展示推荐结果</div>
 </div>
 
 <!-- ================= S3 结果页 ================= -->
@@ -584,7 +578,6 @@ function runAnalysis(){
     <span class="ana-body"><span class="ana-t">${it.t}</span><span class="ana-r"></span></span>
   </div>`).join('');
   $('anaBar').style.width = '0%'; $('anaPct').textContent = '0%';
-  $('anaDone').classList.remove('on'); $('anaHint').style.display = 'block';
   const total = items.length;
   let i = 0;
   function step(){
@@ -596,17 +589,14 @@ function runAnalysis(){
     if(i>=total){
       $('anaBar').style.width = '100%'; $('anaPct').textContent = '100%';
       track('分析页完成');
-      // 完成节拍：绿勾亮相 ~0.8 秒，再淡入结果页，消除硬切突兀感
-      $('anaDoneTx').textContent = below ? '分析完成' : `分析完成 · 为你匹配 ${totalN} 所院校`;
-      $('anaDone').classList.add('on');
-      $('anaHint').style.display = 'none';
+      // 短暂停顿让 100% 落定，然后结果页淡入上移
       setTimeout(()=>{
         render(); applyCareer(); go('s3');
         $('s3').classList.add('fadein');
         setTimeout(()=>$('s3').classList.remove('fadein'), 500);
         $('quietBar').style.display='block';
         setTimeout(()=>track('结果页停留10秒'), 10000);
-      }, reduced?300:800);
+      }, reduced?150:350);
       return;
     }
     $('ana'+i).classList.add('doing');
