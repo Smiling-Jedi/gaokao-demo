@@ -8,6 +8,22 @@ DATA = '/Users/jediyang/ClaudeCode/sghdx/data'
 OUT = '/Users/jediyang/ClaudeCode/sghdx/gaokao-demo/db.js'
 OUT_D = '/Users/jediyang/ClaudeCode/sghdx/gaokao-demo/db_detail.js'
 
+T0 = {'北京', '上海', '广州', '深圳'}
+T1 = {'天津', '苏州', '南京', '杭州', '宁波', '无锡', '厦门', '青岛', '佛山', '长沙', '武汉'}
+NORTH = {'山西', '北京', '天津', '河北', '山东', '河南', '陕西', '辽宁', '吉林', '黑龙江', '内蒙古', '甘肃', '宁夏', '新疆', '青海'}
+SOE_CLS = {'电力/能源', '矿山/石油', '建筑工程', '交通运输/邮电', '机械/仪器仪表', '测绘', '冶金材料'}
+ENG_CLS = {'互联网开发及应用', '计算机与数据处理', '电气/电子（不包括计算机）', '机械/仪器仪表', '电力/能源'}
+EDU_CLS = {'中小学教育', '中等职业教育', '幼儿与学前教育', '职业培训/其他教育'}
+MED_CLS = {'医疗保健/紧急救助'}
+RES_CLS = {'研究人员'}
+
+def t_level(prov, city):
+    if city in T0: return 0
+    if city in T1: return 1
+    if prov == '山西': return 2
+    if prov in NORTH: return 3
+    return 4
+
 EXCLUDE = re.compile(r'专项|预科|民族班|定向')
 LINE = re.compile(r'^(\d{4})\s+(.+?)\s+(物理类|历史类)\s+(第\S+组(?:[(（][^)）]*[)）])?)\s+(\d+)\.\d+$')
 GNUM = re.compile(r'(\d+)')
@@ -63,20 +79,31 @@ def load_plans():
     return out
 
 def load_tags():
-    out = {}
+    out, geo = {}, {}
     with open(f'{DATA}/prod/院校/院校主档.csv', encoding='utf-8-sig') as f:
         for r in csv.DictReader(f):
             tags = [t for t in re.split(r'[·；/]', r['院校标签']) if t in ('985', '211', '双一流')]
             if tags: out[r['院校名称']] = tags
-    return out
+            geo[r['院校名称']] = (r['所在省份'], r['所在城市'])
+    return out, geo
 
-def load_rates():
-    """三率 → {校名: (落实率, 保研率)}（届别进全局注，不上瓦片）"""
-    out = {}
+def load_rates(tags):
+    """三率 → {校名: (落实率, 保研率)}；非92且保研率>15%=疑似升学率串数，隔离待复核（2026-09-27 排序上线时实证）"""
+    out, quarantine = {}, []
     with open(f'{DATA}/prod/院校/院校三率.csv', encoding='utf-8-sig') as f:
         for r in csv.DictReader(f):
             ly, by = r['落实率%'].strip(), r['保研率%'].strip()
+            base = PAREN.sub('', r['院校名称'])
+            tb = getattr(load_rates, '_tb', None)
+            if tb is None:
+                tb = {PAREN.sub('', k) for k in tags}
+                load_rates._tb = tb
+            is92 = tags.get(r['院校名称']) or base in tb or any(x and (x in base or base in x) for x in tb)
+            if by and float(by) > 15 and not is92:
+                quarantine.append((r['院校名称'], by))
+                by = ''
             if ly or by: out[r['院校名称']] = (ly, by)
+    print(f'保研率隔离 {len(quarantine)} 校（非92且>15%）: {[q[0] for q in quarantine]}')
     return out
 
 def load_jobs():
@@ -100,7 +127,7 @@ def load_jobs():
         top = clss.most_common(1)
         p = pay.get(top[0][0], ('', '')) if top else ('', '')
         majors[r['name']] = {'careers': r.get('careers', []), 'h': p[0], 'y': p[1]}
-    return majors, avg
+    return majors, avg, c2m
 
 def fee_fmt(v):
     return f'{v:,}' if isinstance(v, int) else str(v)
@@ -138,7 +165,10 @@ def main():
     phy, his = merge(p26, p25), merge(h26, [])
     print(f'合并: 物理{len(phy)} 历史{len(his)}')
 
-    plans, tags, rates, (jobs, AVG) = load_plans(), load_tags(), load_rates(), load_jobs()
+    plans, (tags, geo) = load_plans(), load_tags()
+    rates = load_rates(tags)
+    jobs, AVG, c2m = load_jobs()
+    AVG_N = int(AVG)
 
     detail, no_plan = {}, 0
     def enrich(rows, kelei):
@@ -156,16 +186,28 @@ def main():
             brief = '·'.join(short) + (f' 等{mc}个专业' if mc > 6 else (f' 共{mc}个专业' if mc else ''))
             # 就业链聚合
             chips, hs, ys = collections.Counter(), [], []
+            cls_cnt, gz_cnt, total_cnt = collections.Counter(), 0, 0
             for m in majors:
                 jb = jobs.get(PAREN.sub('', m[0]).strip())
                 if not jb: continue
                 for c in jb['careers']:
                     c2 = re.sub(r'\(.*?\)', '', c)
                     chips['公务员' if c2.startswith('公务员') else c2] += 1
+                    total_cnt += 1
+                    if c2.startswith('公务员') or c2 == '事业单位人员': gz_cnt += 1
+                    cls, typ = c2m.get(c, ('', ''))
+                    if typ == '麦可思职业类': cls_cnt[cls] += 1
                 if jb['h']: hs.append(int(jb['h']))
                 if jb['y']: ys.append(int(jb['y']))
             chip_s = '|'.join(c for c, _ in chips.most_common(5))
             pay = f'{min(hs)}-{max(hs)}|{min(ys)}-{max(ys)}' if hs and ys else ''
+            gz = round(100 * gz_cnt / total_cnt) if total_cnt else 0
+            cls_total = sum(cls_cnt.values()) or 1
+            edu = 1 if sum(cls_cnt[c] for c in EDU_CLS) / cls_total >= 0.15 else 0
+            med = 1 if sum(cls_cnt[c] for c in MED_CLS) / cls_total >= 0.15 else 0
+            res = 1 if sum(cls_cnt[c] for c in RES_CLS) / cls_total >= 0.08 else 0
+            soe = 1 if sum(cls_cnt[c] for c in SOE_CLS) / cls_total >= 0.30 else 0
+            eng = 1 if sum(cls_cnt[c] for c in ENG_CLS) / cls_total >= 0.30 else 0
             # tips
             tips = []
             fees = [m[2] for m in majors if isinstance(m[2], int)]
@@ -190,9 +232,26 @@ def main():
             if '合作' in o['gt']: gd += '·合作'
             dkey = f'{kelei}|{o["c"]}|{o["g"]}'
             if majors: detail[dkey] = majors
-            # [n,gd,r,s26,r26,s25,r25,tag,xk,brief,mc,ly,by,chips,pay,tips,dkey]
+            # ── 静态排序分（Jedi 2026-09-27 拍板公式）──
+            s_lvl = 30 if '985' in tag else (20 if '211' in tag else (10 if '双一流' in tag else 0))
+            s_by = float(by) * 1.5 if by else 0
+            s_ly = (float(ly) - 80) * 0.5 if ly else 0
+            import statistics
+            h_med = statistics.median(hs) if hs else AVG_N
+            s_pay = (h_med - AVG_N) / 1000 * 2
+            total_plan = sum(m[1] for m in majors)
+            risk = 0
+            if len(majors) == 1 and total_plan <= 2: risk -= 8
+            if majors and total_plan <= 10: risk -= 4
+            fee_list = [m[2] for m in majors if isinstance(m[2], int)]
+            if fee_list and statistics.median(fee_list) >= 13000: risk -= 5
+            sb = round(s_lvl + s_by + s_ly + s_pay + risk, 1)
+            prov, city = geo.get(o['n'], ('', ''))
+            tl = t_level(prov, city)
+            vtag = '职业本科' if '职业技术大学' in o['n'] else ''
             packed.append([o['n'], gd, o['r'], o.get('s26', 0), o.get('r26', 0), o.get('s25', 0), o.get('r25', 0),
-                           tag, xk, brief, mc, ly, by, chip_s, pay, '|'.join(tips[:2]), dkey])
+                           tag, xk, brief, mc, ly, by, chip_s, pay, '|'.join(tips[:2]), dkey,
+                           sb, prov, city, tl, gz, edu, med, res, soe, eng, vtag])
         return packed
 
     phy_p, his_p = enrich(phy, '物理'), enrich(his, '历史')
