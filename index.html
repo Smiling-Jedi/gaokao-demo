@@ -2,16 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"> <!-- v3.3.7: Chrome 108+ 键盘顶起时重排内容，fixed 抽屉随之上移 -->
 <title>上个好大学 · 山西高三版</title>
 <style>
   /* ===== 设计 token：考试语言（墨蓝+朱红） ===== */
   :root{
-    --paper:#FBFCFE; --ink:#33415C; --indigo:#4A7FD4; --seal:#D4574B;
-    --mist:#5F6B7F; --hair:#E3E9F2; --green:#2F9E6E; --slate:#6B7A8F; --amber:#B45309;
+    --paper:#FFFFFF; --ink:#33415C; --indigo:#4A7FD4; --seal:#D4574B;
+    --mist:#42506A; --hair:#DCE3EE; --green:#2F9E6E; --slate:#56627C; --amber:#B45309; /* v3.3.7 雾感治理：纸面纯白+mist/slate 加深一档（暗屏可读性，Jedi 拍板） */
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#EFF3F8; color:var(--ink); font-feature-settings:"tnum"; }
+  html,body { overflow-x:hidden; } /* v3.3.7: 大字模式撑破布局的兜底 */
   .wrap { max-width:480px; margin:0 auto; min-height:100vh; background:var(--paper); padding-bottom:90px; box-shadow:0 0 24px rgba(26,34,51,.06); }
   .screen { display:none; padding:24px 20px; }
   .screen.on { display:block; }
@@ -219,21 +220,23 @@
   @media (prefers-reduced-motion: reduce) { .progress i { transition:none; } }
 
 /* ===== v5 推荐卡 ===== */
-.card.nc{position:relative;display:block;scroll-margin-top:100px;padding:11px 2px 11px 8px;border-bottom:1px solid var(--hair);cursor:pointer;border-left:3px solid transparent}
+.card.nc{position:relative;display:block;scroll-margin-top:100px;padding:11px 2px 11px 8px;border-bottom:1px solid var(--hair);cursor:pointer}
 .card.nc:last-of-type{border-bottom:none}
 .card.nc:active{background:#F5F7FA}
-.tier.chong .card.nc{border-left-color:#F3C4BE}
-.tier.wen .card.nc{border-left-color:#BDE3CE}
-.tier.bao .card.nc{border-left-color:#D5DBE4}
 .c-l1{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
 .c-name{font-size:16px;font-weight:700}
 .c-grp{color:var(--indigo);font-weight:700;font-size:15px}
 .c-dot{color:var(--hair)}
-.nc-tags{position:absolute;right:0;top:12px;display:flex;gap:4px}
-.c-l2{margin-top:4px;font-size:13.5px;color:var(--mist);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nc-tags{position:absolute;right:0;top:11px;height:22px;display:flex;gap:4px;align-items:center} /* v3.3.7: 行1行高带内垂直居中，与校名基线对齐 */
+/* v3.3.7: 窄屏（≤400px）内边距让步——录取线双年一行放不下时优先挤 padding 不降字号 */
+@media (max-width:400px){
+  .tier { padding:10px 8px 8px; }
+  .card.nc { padding-left:5px; }
+}
+.c-l2{margin-top:4px;font-size:14px;color:var(--mist);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-l3{margin-top:4px;font-size:14px;color:var(--mist);font-variant-numeric:tabular-nums;line-height:1.5}
 .c-l3 b{color:var(--ink);font-weight:700}
-.c-l4{margin-top:6px;font-size:13px;color:var(--indigo)}
+.c-l4{margin-top:6px;font-size:13.5px;color:var(--indigo)}
 .detail h4{border-left:3px solid var(--indigo);padding-left:7px}
 .common{font-size:12.5px;color:var(--mist);margin-bottom:5px}
 .mtable{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -246,7 +249,7 @@
 .mtable .yr{font-size:12px;color:#8A94A3;margin-left:4px}
 .heat{display:inline-block;font-size:11px;border-radius:3px;padding:0 4px;margin-left:5px;font-weight:600;vertical-align:1px}
 .heat.hot{background:#FDF3E7;color:var(--amber)} /* v3.3.2: 热标签暖色（Jedi 拍板） */
-.c-reason{font-size:12px;color:var(--green);margin-top:3px;line-height:1.5}
+.c-reason{font-size:12.5px;color:var(--green);margin-top:3px;line-height:1.5}
 .heat.cold{background:#FDF3E7;color:var(--amber)}
 .more-majors{color:var(--indigo);font-size:13px;margin-top:6px;cursor:pointer}
 tr.xj{display:none}
@@ -442,7 +445,7 @@ tr.xj{display:none}
 
 <script src="db.js?v=3.3.2"></script>
 <script>
-const VERSION = 'v3.3.6';
+const VERSION = 'v3.3.7';
 /* ============ 演示数据（真实锚点 + 示例院校） ============ */
 /* 2026 山西一分一段真表（Grok采集，双源质检97/97一致） */
 const YF_PHY = {base:401, top:13, topAt:695, ben:[416, 445, 496, 464, 476, 460, 494, 457, 470, 491, 484, 502, 498, 478, 507, 540, 505, 544, 515, 516, 515, 539, 567, 541, 542, 571, 553, 607, 560, 577, 544, 577, 578, 621, 584, 629, 581, 607, 604, 587, 625, 620, 591, 627, 593, 611, 592, 623, 624, 637, 616, 644, 629, 615, 649, 676, 645, 632, 607, 644, 657, 674, 659, 690, 683, 694, 626, 656, 716, 688, 652, 677, 648, 702, 701, 663, 697, 685, 692, 700, 711, 698, 688, 678, 704, 651, 688, 700, 673, 663, 700, 691, 731, 702, 693, 647, 690, 693, 652, 680, 640, 652, 682, 672, 680, 672, 632, 671, 637, 651, 662, 612, 621, 655, 675, 595, 624, 634, 660, 652, 633, 595, 640, 643, 662, 637, 635, 595, 625, 606, 656, 575, 585, 568, 606, 577, 614, 577, 615, 574, 571, 525, 541, 552, 579, 559, 562, 584, 552, 575, 552, 546, 576, 533, 580, 520, 517, 551, 527, 530, 549, 482, 507, 460, 487, 527, 509, 542, 531, 459, 487, 464, 476, 463, 497, 511, 510, 430, 461, 453, 477, 457, 442, 423, 423, 433, 422, 450, 424, 422, 396, 401, 403, 406, 388, 371, 374, 398, 419, 378, 384, 372, 335, 343, 397, 329, 353, 359, 358, 345, 318, 322, 303, 300, 293, 279, 286, 274, 262, 291, 281, 264, 254, 243, 247, 213, 242, 235, 222, 199, 210, 218, 207, 182, 213, 205, 182, 179, 157, 157, 153, 167, 143, 154, 132, 132, 132, 149, 109, 109, 89, 96, 84, 96, 89, 77, 69, 86, 72, 61, 71, 61, 58, 54, 63, 49, 49, 41, 48, 40, 37, 36, 36, 33, 34, 34, 27, 17, 21, 22, 20, 16, 14, 14, 9, 18, 7, 8, 6, 5, 6, 3, 5, 1], cum:[129364, 128948, 128503, 128007, 127543, 127067, 126607, 126113, 125656, 125186, 124695, 124211, 123709, 123211, 122733, 122226, 121686, 121181, 120637, 120122, 119606, 119091, 118552, 117985, 117444, 116902, 116331, 115778, 115171, 114611, 114034, 113490, 112913, 112335, 111714, 111130, 110501, 109920, 109313, 108709, 108122, 107497, 106877, 106286, 105659, 105066, 104455, 103863, 103240, 102616, 101979, 101363, 100719, 100090, 99475, 98826, 98150, 97505, 96873, 96266, 95622, 94965, 94291, 93632, 92942, 92259, 91565, 90939, 90283, 89567, 88879, 88227, 87550, 86902, 86200, 85499, 84836, 84139, 83454, 82762, 82062, 81351, 80653, 79965, 79287, 78583, 77932, 77244, 76544, 75871, 75208, 74508, 73817, 73086, 72384, 71691, 71044, 70354, 69661, 69009, 68329, 67689, 67037, 66355, 65683, 65003, 64331, 63699, 63028, 62391, 61740, 61078, 60466, 59845, 59190, 58515, 57920, 57296, 56662, 56002, 55350, 54717, 54122, 53482, 52839, 52177, 51540, 50905, 50310, 49685, 49079, 48423, 47848, 47263, 46695, 46089, 45512, 44898, 44321, 43706, 43132, 42561, 42036, 41495, 40943, 40364, 39805, 39243, 38659, 38107, 37532, 36980, 36434, 35858, 35325, 34745, 34225, 33708, 33157, 32630, 32100, 31551, 31069, 30562, 30102, 29615, 29088, 28579, 28037, 27506, 27047, 26560, 26096, 25620, 25157, 24660, 24149, 23639, 23209, 22748, 22295, 21818, 21361, 20919, 20496, 20073, 19640, 19218, 18768, 18344, 17922, 17526, 17125, 16722, 16316, 15928, 15557, 15183, 14785, 14366, 13988, 13604, 13232, 12897, 12554, 12157, 11828, 11475, 11116, 10758, 10413, 10095, 9773, 9470, 9170, 8877, 8598, 8312, 8038, 7776, 7485, 7204, 6940, 6686, 6443, 6196, 5983, 5741, 5506, 5284, 5085, 4875, 4657, 4450, 4268, 4055, 3850, 3668, 3489, 3332, 3175, 3022, 2855, 2712, 2558, 2426, 2294, 2162, 2013, 1904, 1795, 1706, 1610, 1526, 1430, 1341, 1264, 1195, 1109, 1037, 976, 905, 844, 786, 732, 669, 620, 571, 530, 482, 442, 405, 369, 333, 300, 266, 232, 205, 188, 167, 145, 125, 109, 95, 81, 72, 54, 47, 39, 33, 28, 22, 19, 14]};
@@ -468,6 +471,7 @@ function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $(id).classList.add('on');
   window.scrollTo(0,0);
+  if(id!=='s3'){ const qb=$('quietBar'); if(qb) qb.style.display='none'; } // v3.3.7: 离开结果页吸底条必藏（治表单页乱跑）
   if(id==='s2' && firstTrack){ track('开始填写'); firstTrack=false; }
 }
 function pick(el,key){
@@ -696,7 +700,7 @@ function calc(){
     // 按成绩上下浮动15分查真表得区间（替代旧的±50%拍脑袋带宽）
     const lo = scoreToRank(Math.min(750, s+15), st.first);
     const hi = scoreToRank(Math.max(0, s-15), st.first);
-    basis = '按成绩估算 · 上下浮动约 15 分';
+    basis = '按成绩估算·上下浮动约15分'; // v3.3.7: 窄屏单行，点号间隙收紧
     estimate = {est, widen:1, basis, lo, hi};
     return;
   }
@@ -758,7 +762,7 @@ function scoreOf(row, est){
 }
 function computeTiers(){
   const tr = tierRanges();
-  const pool = DB[st.first];
+  const pool = DB[st.first].filter(r=>r[10]>0); // v3.3.7: 0 人组（2026 明细缺失 25 组）止血下线——投档线在但明细缺，页面「山西招 0 人」误导家长（Jedi 亲抓：海南大学306）；明细回补后删此过滤
   const est = estimate.est;
   // top3 排序依据（简单有依据）：冲=最容易够着的在前、稳=离定位最近在前、保=最优保底在前
   const mk = (key,name,desc,range,cls,sortFn)=>{
@@ -813,7 +817,7 @@ function schoolCard(s){
   let tags=s.tag?s.tag.split('/').map(t=>`<span class="sl-tag">${t}</span>`).join(''):'';
   if(s.vtag) tags+=`<span class="sl-tag" style="background:#FDF3E7;color:var(--amber)">${s.vtag}</span>`;
   window._cards=window._cards||{}; window._cards[cid]=s;
-  const l3=s.y3.map(y=>`${y[0]} <b>${y[1]}</b> 分 / <b>${y[2]}</b> 名`).join('　');
+  const l3=s.y3.map(y=>`${y[0]}<b>${y[1]}</b>分/<b>${y[2]}</b>名`).join(' '); // v3.3.7: 收紧符号间隙治窄屏折行（字号不降）
   const badges=[];
   const rh=regionHit(s._row);
   if(rh) badges.push('≈'+rh);
@@ -900,7 +904,7 @@ function render(){
     const sc0 = estimate.diffScore ?? (+st.score);
     const gap = Math.max(1, Math.round(line - sc0));
     const perPt = (st.first==='物理'?YF_PHY:YF_HIS).ben[0];
-    $('locateSub').textContent = `该成绩在 2026 本科线（${st.first}类 ${line} 分）以下 · ${estimate.basis}`;
+    $('locateSub').textContent = `该成绩在 2026 本科线（${st.first}类 ${line} 分）以下·${estimate.basis}`;
     $('tiers').innerHTML = `<div class="tier" style="border-left-color:var(--amber)">
       <div class="t-name">距本科线还差约 ${gap} 分</div>
       <div class="reason" style="border-top:none;padding-top:4px">这个分段，每多考 1 分大约超过 ${perPt} 人（2026 高考真实排名）。<br>先提分上线，再选学校——高考志愿专家可以帮你分析提分空间。</div>
@@ -910,7 +914,7 @@ function render(){
   }
   const rawPct = 100 - b.lo/total*100;
   const pct = rawPct>=99.95 ? '>99.9' : rawPct.toFixed(rawPct<10?1:0);
-  $('locateSub').textContent = `超过本科线上约 ${pct}% 的考生 · ${estimate.basis}`;
+  $('locateSub').textContent = `超过本科线上约 ${pct}% 的考生·${estimate.basis}`;
   const data = computeTiers();
   // Tab 栏
   $('tiers').innerHTML = `<div class="tier-tabs" id="ttabs">${data.map((t,i)=>
@@ -1088,6 +1092,14 @@ function restoreState(){
   } else { go('s2'); track('刷新恢复表单页'); }
 }
 function editScore(){ track('结果页改分'); go('s2'); } // 表单内容本就在，直接切回
+// v3.3.7: 键盘遮挡浮层治理（iOS/老 Chrome 兜底）——可视视口被键盘挤压时，留资抽屉底边上移
+if(window.visualViewport){
+  visualViewport.addEventListener('resize', ()=>{
+    const kb = window.innerHeight - visualViewport.height;
+    const sh = $('leadSheet');
+    if(sh) sh.style.bottom = kb>80 ? kb+'px' : '0'; // >80px 才算键盘（排除地址栏伸缩）
+  });
+}
 restoreState();
 </script>
 </body>

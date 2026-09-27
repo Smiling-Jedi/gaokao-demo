@@ -78,6 +78,7 @@ JS_SCORE = """([first, score]) => {
       cats0.add(headCat(real)); used.add(real[0]);
     }
     f.topCount = topEls.length;
+    f.zeroPlan = rows.filter(r=>r[10]===0).length; // v3.3.7: 明细缺失 0 人组不得进推荐池
     f.topNames = top.map(r=>r[0]+r[1]);
     f.topCats = top.map(headCat);
     f.topLvls = top.map(lvlOf);
@@ -129,6 +130,7 @@ def check_one(first, score, f):
     for t in f['tiers']:
         sc = f'{s}/{t["name"]}'
         if t.get('empty'): continue
+        if t['zeroPlan']: F(sc, '推荐池混入 0 人组', t['zeroPlan'])
         if t['topCount'] != 3: F(sc, 'TOP3=3卡', t['topCount'])
         if not t['topIsRows0']: F(sc, 'TOP3#1=S第一')
         if len(set(n.split('第')[0] for n in t['topNames'])) != len(t['topNames']): F(sc, 'TOP3同校去重', t['topNames'])

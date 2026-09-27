@@ -229,6 +229,44 @@ def check_below_line(page):
         '本科线' in out['sub'] and '距本科线还差' in out['tiers'] and '提分' in out['lead'],
         out['sub'][:60])
 
+def check_v337(page):
+    """v3.3.7 回归组：吸底条离页隐藏 / 推荐池零 0 人组 / 窄屏 360 行3单行+无横向溢出"""
+    out = page.evaluate("""async () => {
+      // 吸底条离页隐藏：s3 显示→go('s2') 应藏
+      st.first='物理'; st.gender='男'; st.score='580'; st.career='还没想好'; st.region='还没想好';
+      estimate = {est: scoreToRank(580,'物理'), widen:1, basis:'b', lo:1, hi:99999};
+      render(); go('s3');
+      document.getElementById('quietBar').style.display='block';
+      go('s2');
+      const qbHiddenOnForm = document.getElementById('quietBar').style.display==='none';
+      go('s3');
+      // 推荐池零 0 人组
+      const data = computeTiers();
+      const zeroInPool = data.reduce((n,t)=>n+t.rows.filter(r=>r[10]===0).length, 0);
+      return {qbHiddenOnForm, zeroInPool};
+    }""")
+    rec('交互', '吸底条只在结果页（go(s2) 必藏）', 'v3.3.7', out['qbHiddenOnForm'])
+    rec('数据', '推荐池零「计划 0 人」组', 'v3.3.7', out['zeroInPool'] == 0, out['zeroInPool'])
+    # 窄屏 360：行3单行+无横向溢出
+    page.set_viewport_size({'width': 360, 'height': 800})
+    page.evaluate("""() => {
+      st.first='物理'; st.gender='男'; st.score='580'; st.career='还没想好'; st.region='还没想好';
+      estimate = {est: scoreToRank(580,'物理'), widen:1, basis:'b', lo:1, hi:99999};
+      render(); go('s3'); switchTier(1);
+    }""")
+    page.wait_for_timeout(300)
+    m = page.evaluate("""() => {
+      const l3 = [...document.querySelectorAll('.c-l3')];
+      const bad = l3.filter(e=>e.getBoundingClientRect().height > 24)
+        .map(e=>({txt: e.textContent.slice(0,40), h: Math.round(e.getBoundingClientRect().height),
+                  w: Math.round(e.getBoundingClientRect().width),
+                  card: e.closest('.tier')?.className, hid: e.offsetParent===null}));
+      return {bad, wrapped: bad.length, scrollW: document.documentElement.scrollWidth, vw: document.documentElement.clientWidth};
+    }""")
+    rec('UI', '360px 行3录取线单行不折', 'v3.3.7', m['wrapped'] == 0, json.dumps(m['bad'], ensure_ascii=False))
+    rec('UI', '360px 无横向溢出', 'v3.3.7', m['scrollW'] <= m['vw'] + 1, f"{m['scrollW']}>{m['vw']}")
+    page.set_viewport_size({'width': 480, 'height': 900})
+
 def main():
     with sync_playwright() as p:
         b = p.chromium.launch()
@@ -250,6 +288,7 @@ def main():
             check_scenario(pg, first, score, label)
         check_interaction_live(pg)
         check_below_line(pg)
+        check_v337(pg)
         b.close()
     fails = [r for r in R if r['ok'] is False]
     skips = [r for r in R if r['ok'] is None]
