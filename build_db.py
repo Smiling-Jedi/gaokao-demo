@@ -128,7 +128,7 @@ def load_jobs():
     with open(f'{DATA}/staging/就业_职业类薪酬_麦可思2026_v0.csv', encoding='utf-8-sig') as f:
         for r in csv.DictReader(f):
             pay[r['职业类']] = (r['半年薪_2025届'], r['五年薪_2020届'])
-    avg = pay.get('全国本科', ('6435', ''))[0]
+    avg_h, avg_y = pay.get('全国本科', ('6435', '10664'))  # 麦可思2026全国本科：半年6435/五年10664（同表第43行）
     majors = {}
     for ln in open(f'{DATA}/raw/专业岗位映射_阳光高考_2026-09/zy_map_records.jsonl'):
         r = json.loads(ln)
@@ -139,7 +139,7 @@ def load_jobs():
         top = clss.most_common(1)
         p = pay.get(top[0][0], ('', '')) if top else ('', '')
         majors[r['name']] = {'careers': r.get('careers', []), 'h': p[0], 'y': p[1]}
-    return majors, avg, c2m
+    return majors, avg_h, avg_y, c2m
 
 def fee_fmt(v):
     return f'{v:,}' if isinstance(v, int) else str(v)
@@ -180,8 +180,8 @@ def main():
     plans, (tags, geo) = load_plans(), load_tags()
     rates = load_rates(tags)
     heat = load_heat()
-    jobs, AVG, c2m = load_jobs()
-    AVG_N = int(AVG)
+    jobs, AVG, AVG5, c2m = load_jobs()
+    AVG_N, AVG5_N = int(AVG), int(AVG5)
 
     detail, no_plan = {}, 0
     def enrich(rows, kelei):
@@ -259,36 +259,45 @@ def main():
             if hot_sh >= 0.7:
                 heat_score += 4
                 tips.append('G:✓ 全组热门专业（就业热度高置信标注）')
-            if cold_sh >= 0.6: heat_score -= 8
-            elif cold_sh >= 0.4: heat_score -= 4
-            if cold_sh >= 0.4:
-                auto_colds = [PAREN.sub('', m[0]) for m in majors if (heat.get(PAREN.sub('', m[0]).strip(), ('',0,0))[0] == '冷门')]
-                named = f'（{"、".join(auto_colds[:2])} 等）' if auto_colds else ''
-                tips.append(f'Y:⚠ 组内 {round(cold_sh*100)}% 计划为冷门专业{named}，压线进组可能被调过去')
+            # S-Score v2.0：冷占比线性静默扣分（−占比×10 封顶−8），页面零提示（合规：冷字样不上网页）
+            heat_score -= min(8, cold_sh * 10)
 
-            # ── 静态排序分（Jedi 2026-09-27 拍板公式）──
+            # ── 静态排序分 S-Score v2.0（2026-09-27 Jedi 拍板）──
             s_lvl = 30 if '985' in tag else (20 if '211' in tag else (10 if '双一流' in tag else 0))
-            s_by = float(by) * 1.5 if by else 0
+            s_by = float(by) * 1.0 if by else 0  # v2.0: ×1.5→×1.0（远变量+口径风险降权）
+            if '合作' in gd: s_by *= 0.5  # v2.0: 合作组保研折半（项目实际保研远低于全校口径）
             s_ly = (float(ly) - 80) * 0.5 if ly else 0
             import statistics
             h_med = statistics.median(hs) if hs else AVG_N
-            s_pay = (h_med - AVG_N) / 1000 * 2
+            y5_med = statistics.median(ys) if ys else None
+            if y5_med is not None:  # v2.0: 半年×0.6+五年×0.4（后劲型专业不再被低估）
+                s_pay = ((h_med - AVG_N) * 0.6 + (y5_med - AVG5_N) * 0.4) / 1000 * 2
+            else:
+                s_pay = (h_med - AVG_N) / 1000 * 2
             total_plan = sum(m[1] for m in majors)
             risk = 0
             if len(majors) == 1: risk -= 4  # C: 单专业组=无调剂余地+波动
             if majors and total_plan <= 10: risk -= 4
             fee_list = [m[2] for m in majors if isinstance(m[2], int)]
-            if fee_list and statistics.median(fee_list) >= 13000: risk -= 5
+            if fee_list:  # v2.0: 学费阶梯（原一刀切≥1.3万−5 扣轻了）
+                fee_med = statistics.median(fee_list)
+                if fee_med >= 50000: risk -= 15
+                elif fee_med >= 30000: risk -= 10
+                elif fee_med >= 13000: risk -= 5
+            stab = 0
             # A: 重排组识别——25/26 同号组位次比 >2x 或 <0.5x（Jedi 2026-09-27 拍板）
             if o.get('s25') and o.get('r25') and o.get('r26'):
                 ratio = o['r26'] / o['r25']
                 if ratio > 2 or ratio < 0.5:
                     risk -= 6
                     tips.append('Y:⚠ 25年同号组构成不同，两年分数不可直接比')
+                elif 0.8 <= ratio <= 1.25:
+                    stab = 3  # v2.0: 稳定性因子——两年线互证，新高考首年可信度加分
             # B: 偏远心智扣分（山西家长视角，Jedi 拍板）
             if re.search(r'西藏|新疆|青海|甘肃|宁夏|内蒙古', geo.get(o['n'], ('', ''))[0]):
                 risk -= 6
-            sb = round(s_lvl + s_by + s_ly + s_pay + risk + heat_score, 1)
+            plan_bonus = 2 if total_plan >= 50 else 0  # v2.0: 大计划正向端（线稳敢报）
+            sb = round(s_lvl + s_by + s_ly + s_pay + risk + heat_score + stab + plan_bonus, 1)
             prov, city = geo.get(o['n'], ('', ''))
             tl = t_level(prov, city)
             vtag = '职业本科' if '职业技术大学' in o['n'] else ''
