@@ -241,10 +241,19 @@ def main():
             s_pay = (h_med - AVG_N) / 1000 * 2
             total_plan = sum(m[1] for m in majors)
             risk = 0
-            if len(majors) == 1 and total_plan <= 2: risk -= 8
+            if len(majors) == 1: risk -= 4  # C: 单专业组=无调剂余地+波动
             if majors and total_plan <= 10: risk -= 4
             fee_list = [m[2] for m in majors if isinstance(m[2], int)]
             if fee_list and statistics.median(fee_list) >= 13000: risk -= 5
+            # A: 重排组识别——25/26 同号组位次比 >2x 或 <0.5x（Jedi 2026-09-27 拍板）
+            if o.get('s25') and o.get('r25') and o.get('r26'):
+                ratio = o['r26'] / o['r25']
+                if ratio > 2 or ratio < 0.5:
+                    risk -= 6
+                    tips.append('Y:⚠ 25年同号组构成不同，两年分数不可直接比')
+            # B: 偏远心智扣分（山西家长视角，Jedi 拍板）
+            if re.search(r'西藏|新疆|青海|甘肃|宁夏|内蒙古', geo.get(o['n'], ('', ''))[0]):
+                risk -= 6
             sb = round(s_lvl + s_by + s_ly + s_pay + risk, 1)
             prov, city = geo.get(o['n'], ('', ''))
             tl = t_level(prov, city)
