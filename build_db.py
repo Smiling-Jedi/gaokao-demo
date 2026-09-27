@@ -4,8 +4,9 @@
 import re, json, csv, sys
 import pdfplumber
 
-DATA = '/Users/jediyang/ClaudeCode/Project-Makemoney/高考志愿内参/data'
-OUT = '/Users/jediyang/ClaudeCode/Project-Makemoney/高考志愿内参/gaokao-demo/db.js'
+DATA = '/Users/jediyang/ClaudeCode/sghdx/data'
+DATA2 = '/Users/jediyang/Desktop/高考数据/AI抓取'
+OUT = '/Users/jediyang/ClaudeCode/sghdx/gaokao-demo/db.js'
 
 EXCLUDE = re.compile(r'专项|预科|民族班|定向')
 LINE = re.compile(r'^(\d{4})\s+(.+?)\s+(物理类|历史类)\s+(第\S+组(?:[(（][^)）]*[)）])?)\s+(\d+)\.\d+$')
@@ -48,18 +49,38 @@ def parse_pdf(path, yfd):
                 rows.append({'n': name, 'g': grp, 's': int(score), 'r': rank_of(yfd, int(score))})
     return rows, dropped
 
+def load_liantie(path):
+    """联表 → {院校名称: {tag, zs, by, jy}}（三率格式 '71.07@2024'，标签只留 985/211/双一流）"""
+    out = {}
+    def pct(s):
+        m = re.match(r'([\d.]+)%（(\d{4})', s.strip())
+        return f'{m.group(1)}@{m.group(2)}' if m else ''
+    with open(path, encoding='utf-8-sig') as f:
+        for r in csv.DictReader(f):
+            n = r['院校名称'].strip()
+            if not n:
+                continue
+            cur = out.setdefault(n, {'tag': '', 'zs': '', 'by': '', 'jy': ''})
+            if not cur['tag'] and r['院校标签'].strip():
+                tags = [t for t in r['院校标签'].split('；') if t in ('985', '211', '双一流')]
+                cur['tag'] = '/'.join(tags)
+            for k, col in (('zs', '升学率'), ('by', '保研率'), ('jy', '就业率')):
+                if not cur[k]:
+                    cur[k] = pct(r[col])
+    return out
+
 def main():
-    yfd26_phy = load_yfd(f'{DATA}/shanxi_2026_yifenyiduan_物理类.csv')
-    yfd26_his = load_yfd(f'{DATA}/shanxi_2026_yifenyiduan_历史类.csv')
+    yfd26_phy = load_yfd(f'{DATA}/prod/一分一段/shanxi_2026_yifenyiduan_物理类.csv')
+    yfd26_his = load_yfd(f'{DATA}/prod/一分一段/shanxi_2026_yifenyiduan_历史类.csv')
     print(f'一分一段2026: 物理{len(yfd26_phy)}行 历史{len(yfd26_his)}行')
 
-    p26, d26p = parse_pdf(f'{DATA}/官方PDF_2026本科批投档线_物理类.pdf', yfd26_phy)
-    h26, d26h = parse_pdf(f'{DATA}/官方PDF_2026本科批投档线_历史类.pdf', yfd26_his)
+    p26, d26p = parse_pdf(f'{DATA}/raw/官方PDF_2026本科批投档线_物理类.pdf', yfd26_phy)
+    h26, d26h = parse_pdf(f'{DATA}/raw/官方PDF_2026本科批投档线_历史类.pdf', yfd26_his)
     print(f'2026转录: 物理{len(p26)}行(剔专项等{d26p}) 历史{len(h26)}行(剔{d26h})')
 
     # 2025 物理全量（已带位次）
     p25 = []
-    with open(f'{DATA}/投档线_山西_2025_物理类_位次补全.csv', encoding='utf-8-sig') as f:
+    with open(f'{DATA}/prod/投档线/投档线_山西_2025_物理类_位次补全.csv', encoding='utf-8-sig') as f:
         for r in csv.DictReader(f):
             if EXCLUDE.search(r['专业组']):
                 continue
@@ -89,9 +110,20 @@ def main():
     both26 = sum(1 for o in phy if 'r26' in o and 'r25' in o)
     print(f'合并: 物理{len(phy)}条(双年对照{both26}条) 历史{len(his)}条')
 
+    # 联表三率+院校标签（按院校名合并）
+    lt = load_liantie(f'{DATA2}/山西2026联表_专业组_整理版.csv')
+    hit = 0
+    for o in phy + his:
+        m = lt.get(o['n'])
+        if m:
+            o['lt'] = m
+            hit += 1
+    print(f'联表合入: {hit} 条命中（标签/三率）')
+
     def pack(rows):
-        # [院校, 专业组, 主位次, 2026分, 2026位次, 2025分, 2025位次]（无则0）
-        return [[o['n'], o['g'], o['r'], o.get('s26', 0), o.get('r26', 0), o.get('s25', 0), o.get('r25', 0)] for o in rows]
+        # [院校, 专业组, 主位次, 2026分, 2026位次, 2025分, 2025位次, 标签, 升学, 保研, 就业]（无则0/''）
+        return [[o['n'], o['g'], o['r'], o.get('s26', 0), o.get('r26', 0), o.get('s25', 0), o.get('r25', 0),
+                 o.get('lt', {}).get('tag', ''), o.get('lt', {}).get('zs', ''), o.get('lt', {}).get('by', ''), o.get('lt', {}).get('jy', '')] for o in rows]
 
     with open(OUT, 'w', encoding='utf-8') as f:
         f.write('// 全量院校库（build_db.py 生成，勿手改）——2026官方PDF转录+2025全量；已剔专项/预科/民族班/定向\n')
