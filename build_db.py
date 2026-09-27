@@ -184,6 +184,23 @@ def main():
     AVG_N, AVG5_N = int(AVG), int(AVG5)
 
     detail, no_plan = {}, 0
+    # v3.3.2: 括号方向优先匹配（Jedi 抓案：信管（医学信息学方向）被按基名配了工程造价）
+    # 退化链：括号方向词（去方向/班后缀、去工程技术归一）查库 → 基名 → 不显示
+    def norm_dir(s):
+        return re.sub(r'(方向|实验班|试验班|创新班|精英班|荣誉班|特色班|计划|班)$', '', s).replace('工程', '').replace('技术', '').strip()
+    def find_jobs(name):
+        base = PAREN.sub('', name).strip()
+        pm = re.search(r'[（(]([^）)]*)[）)]', name)
+        if pm:
+            d, dn = pm.group(1).strip(), norm_dir(pm.group(1))
+            if dn and dn != base:
+                if d in jobs: return jobs[d]
+                if len(dn) >= 3:
+                    for k in jobs:
+                        kn = k.replace('工程', '').replace('技术', '')
+                        if dn == kn or (len(kn) >= 3 and (dn in kn or kn in dn)):
+                            return jobs[k]
+        return jobs.get(base)
     def enrich(rows, kelei):
         nonlocal no_plan
         packed = []
@@ -201,7 +218,7 @@ def main():
             chips, hs, ys = collections.Counter(), [], []
             cls_cnt, gz_cnt, total_cnt = collections.Counter(), 0, 0
             for m in majors:
-                jb = jobs.get(PAREN.sub('', m[0]).strip())
+                jb = find_jobs(m[0])
                 if not jb: continue
                 for c in jb['careers']:
                     c2 = re.sub(r'\(.*?\)', '', c)
@@ -229,16 +246,17 @@ def main():
             if fees and max(fees) - min(fees) > 2000:
                 hi = max(fees)
                 n_hi = sum(1 for f in fees if f == hi)
-                tips.append(f'Y:⚠ {n_hi} 个名额学费 {fee_fmt(hi)} 元/年（已标黄），其余 {fee_fmt(min(fees))} 元')
+                wan = lambda v: f'{v/10000:g} 万' if v >= 10000 else f'{v:,} 元'
+                tips.append(f'Y:{n_hi} 个名额学费 {wan(hi)}/年，其余为 {wan(min(fees))}')
             body = [m for m in majors if re.search(r'色盲|色弱|身高', m[4])]
             if body:
-                tips.append(f'Y:⚠ {len(body)} 个专业限色盲色弱等身体条件，报前核对')
+                tips.append(f'Y:{len(body)} 个专业有色盲色弱等身体限制')
             campus_set = {re.search(r'办学地点([^;；,，]*)', m[4]).group(1) for m in majors if re.search(r'办学地点([^;；,，]*校区)', m[4])}
             if len(campus_set) > 1:
-                tips.append('Y:⚠ 组内专业分属不同校区，报前看备注')
+                tips.append('Y:组内专业在不同校区上课')
             total = sum(m[1] for m in majors)
             if majors and total <= 10:
-                tips.append(f'Y:⚠ 全组仅 {total} 人，分数线波动可能大')
+                tips.append(f'Y:全组仅 {total} 人，分数线历年波动较大')
             tag = '/'.join(tags.get(o['n'], []))
             ly, by = rates.get(o['n'], ('', ''))
             gd = f'第{o["g"]}组[{xk}]' if xk else o['gt']
@@ -290,7 +308,7 @@ def main():
                 ratio = o['r26'] / o['r25']
                 if ratio > 2 or ratio < 0.5:
                     risk -= 6
-                    tips.append('Y:⚠ 25年同号组构成不同，两年分数不可直接比')
+                    tips.append('Y:该组 25 年构成不同，两年分数不可直接比')
                 elif 0.8 <= ratio <= 1.25:
                     stab = 3  # v2.0: 稳定性因子——两年线互证，新高考首年可信度加分
             # B: 偏远心智扣分（山西家长视角，Jedi 拍板）
