@@ -379,6 +379,7 @@ tr.xj{display:none}
   <div class="locate">
     <div class="big" id="locateText">—</div>
     <div class="sub" id="locateSub">—</div>
+    <div style="text-align:right;margin-top:2px"><a href="javascript:void(0)" onclick="editScore()" style="color:var(--mist);font-size:12px;text-decoration:none">‹ 修改成绩/信息</a></div>
   </div>
   <div class="tiers-pc" id="tiers"></div>
 
@@ -432,7 +433,7 @@ tr.xj{display:none}
 
 <script src="db.js?v=3.3.2"></script>
 <script>
-const VERSION = 'v3.3.4';
+const VERSION = 'v3.3.5';
 /* ============ 演示数据（真实锚点 + 示例院校） ============ */
 /* 2026 山西一分一段真表（Grok采集，双源质检97/97一致） */
 const YF_PHY = {base:401, top:13, topAt:695, ben:[416, 445, 496, 464, 476, 460, 494, 457, 470, 491, 484, 502, 498, 478, 507, 540, 505, 544, 515, 516, 515, 539, 567, 541, 542, 571, 553, 607, 560, 577, 544, 577, 578, 621, 584, 629, 581, 607, 604, 587, 625, 620, 591, 627, 593, 611, 592, 623, 624, 637, 616, 644, 629, 615, 649, 676, 645, 632, 607, 644, 657, 674, 659, 690, 683, 694, 626, 656, 716, 688, 652, 677, 648, 702, 701, 663, 697, 685, 692, 700, 711, 698, 688, 678, 704, 651, 688, 700, 673, 663, 700, 691, 731, 702, 693, 647, 690, 693, 652, 680, 640, 652, 682, 672, 680, 672, 632, 671, 637, 651, 662, 612, 621, 655, 675, 595, 624, 634, 660, 652, 633, 595, 640, 643, 662, 637, 635, 595, 625, 606, 656, 575, 585, 568, 606, 577, 614, 577, 615, 574, 571, 525, 541, 552, 579, 559, 562, 584, 552, 575, 552, 546, 576, 533, 580, 520, 517, 551, 527, 530, 549, 482, 507, 460, 487, 527, 509, 542, 531, 459, 487, 464, 476, 463, 497, 511, 510, 430, 461, 453, 477, 457, 442, 423, 423, 433, 422, 450, 424, 422, 396, 401, 403, 406, 388, 371, 374, 398, 419, 378, 384, 372, 335, 343, 397, 329, 353, 359, 358, 345, 318, 322, 303, 300, 293, 279, 286, 274, 262, 291, 281, 264, 254, 243, 247, 213, 242, 235, 222, 199, 210, 218, 207, 182, 213, 205, 182, 179, 157, 157, 153, 167, 143, 154, 132, 132, 132, 149, 109, 109, 89, 96, 84, 96, 89, 77, 69, 86, 72, 61, 71, 61, 58, 54, 63, 49, 49, 41, 48, 40, 37, 36, 36, 33, 34, 34, 27, 17, 21, 22, 20, 16, 14, 14, 9, 18, 7, 8, 6, 5, 6, 3, 5, 1], cum:[129364, 128948, 128503, 128007, 127543, 127067, 126607, 126113, 125656, 125186, 124695, 124211, 123709, 123211, 122733, 122226, 121686, 121181, 120637, 120122, 119606, 119091, 118552, 117985, 117444, 116902, 116331, 115778, 115171, 114611, 114034, 113490, 112913, 112335, 111714, 111130, 110501, 109920, 109313, 108709, 108122, 107497, 106877, 106286, 105659, 105066, 104455, 103863, 103240, 102616, 101979, 101363, 100719, 100090, 99475, 98826, 98150, 97505, 96873, 96266, 95622, 94965, 94291, 93632, 92942, 92259, 91565, 90939, 90283, 89567, 88879, 88227, 87550, 86902, 86200, 85499, 84836, 84139, 83454, 82762, 82062, 81351, 80653, 79965, 79287, 78583, 77932, 77244, 76544, 75871, 75208, 74508, 73817, 73086, 72384, 71691, 71044, 70354, 69661, 69009, 68329, 67689, 67037, 66355, 65683, 65003, 64331, 63699, 63028, 62391, 61740, 61078, 60466, 59845, 59190, 58515, 57920, 57296, 56662, 56002, 55350, 54717, 54122, 53482, 52839, 52177, 51540, 50905, 50310, 49685, 49079, 48423, 47848, 47263, 46695, 46089, 45512, 44898, 44321, 43706, 43132, 42561, 42036, 41495, 40943, 40364, 39805, 39243, 38659, 38107, 37532, 36980, 36434, 35858, 35325, 34745, 34225, 33708, 33157, 32630, 32100, 31551, 31069, 30562, 30102, 29615, 29088, 28579, 28037, 27506, 27047, 26560, 26096, 25620, 25157, 24660, 24149, 23639, 23209, 22748, 22295, 21818, 21361, 20919, 20496, 20073, 19640, 19218, 18768, 18344, 17922, 17526, 17125, 16722, 16316, 15928, 15557, 15183, 14785, 14366, 13988, 13604, 13232, 12897, 12554, 12157, 11828, 11475, 11116, 10758, 10413, 10095, 9773, 9470, 9170, 8877, 8598, 8312, 8038, 7776, 7485, 7204, 6940, 6686, 6443, 6196, 5983, 5741, 5506, 5284, 5085, 4875, 4657, 4450, 4268, 4055, 3850, 3668, 3489, 3332, 3175, 3022, 2855, 2712, 2558, 2426, 2294, 2162, 2013, 1904, 1795, 1706, 1610, 1526, 1430, 1341, 1264, 1195, 1109, 1037, 976, 905, 844, 786, 732, 669, 620, 571, 530, 482, 442, 405, 369, 333, 300, 266, 232, 205, 188, 167, 145, 125, 109, 95, 81, 72, 54, 47, 39, 33, 28, 22, 19, 14]};
@@ -466,6 +467,7 @@ function pick(el,key){
   el.classList.add('on');
   st[key] = el.dataset.v || el.textContent.trim();
   refreshBtn();
+  saveState('s2'); // v3.3.5
 }
 function toggleMoreCity(){
   const b = $('moreCityBox');
@@ -478,6 +480,7 @@ function pick2(el){
   if(el.classList.contains('on')){ el.classList.remove('on'); st.second = st.second.filter(x=>x!==v); }
   else if(st.second.length<2){ el.classList.add('on'); st.second.push(v); }
   refreshBtn();
+  saveState('s2'); // v3.3.5
 }
 function pickRankType(el,v){
   ['线','省','市','校','无'].forEach(x=>{
@@ -490,6 +493,7 @@ function pickRankType(el,v){
   $('schoolInput').style.display = (v==='校') ? 'block':'none';
   $('noRankHint').style.display = (v==='无') ? 'block':'none';
   refreshBtn();
+  saveState('s2'); // v3.3.5
 }
 function linePreviewUpdate(){
   const sc = +$('score').value, tk = +$('lineTK').value, bk = +$('lineBK').value;
@@ -542,11 +546,18 @@ $('rankVal') && $('rankVal').addEventListener('input', e=> st.rankVal=e.target.v
 $('lineTK') && $('lineTK').addEventListener('input', e=>{ st.lineTK=e.target.value; linePreviewUpdate(); });
 $('lineBK') && $('lineBK').addEventListener('input', e=>{ st.lineBK=e.target.value; linePreviewUpdate(); });
 $('schoolName') && $('schoolName').addEventListener('input', e=> st.school=e.target.value);
+$('s2').addEventListener('input', ()=>saveState('s2')); // v3.3.5: 文本输入委托存档
 
 function submit(){
   st.score = +$('score').value;
   track('表单提交');
   calc();
+  if(seenAnalysis){ // v3.3.5: 改参重算——跳过分析动画直达结果页
+    track('改参重算');
+    render(); applyCareer(); go('s3');
+    $('quietBar').style.display='block';
+    return;
+  }
   go('s25');
   runAnalysis();
 }
@@ -599,6 +610,7 @@ function runAnalysis(){
       // 100% 落定 0.35 秒，然后结果页从右侧滑入
       setTimeout(()=>{
         render(); applyCareer();
+        seenAnalysis=true; // v3.3.5: 看过一次分析动画，之后改参直达结果
         if(reduced){
           go('s3');
         } else {
@@ -868,6 +880,7 @@ function renderDetail(s){
 }
 
 function render(){
+  saveState('s3'); // v3.3.5: 结果出炉即存档，刷新可恢复
   const b = band(), total = ONLINE_2026[st.first];
   const scoreTxt = st.score ? `${st.score} 分 · ` : ''; // 排名路径无分数时不带前缀
   $('locateText').textContent = `${scoreTxt}全省${st.first}类约前 ${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()} 名`;
@@ -939,7 +952,7 @@ function pickTop3(rows){
       if(c==='其他'||cats.has(c)) continue; // 要真卖点且不撞
       pick=r; break;
     }
-    if(!pick){ for(const r of rows){ if(!used.has(r[0])&&!comp.includes(r)){ pick=r; break; } } } // 兜底纯分顺位
+    if(!pick){ let bl=-1; for(const r of rows){ if(used.has(r[0])||comp.includes(r)) continue; const l=lvlOf(r); if(l>bl){ bl=l; pick=r; } } } // v3.3.5: 兜底也守层次——取剩余最高层次，同层按分序（遍历序即分序）
     if(!pick) break;
     comp.push(pick); cats.add(headCat(pick)); used.add(pick[0]);
   }
@@ -954,7 +967,13 @@ function switchTier(i){
   const rest = t.rows.filter(row=>!top.includes(row));
   let html;
   if(!t.rows.length){
-    html = '<div class="tier"><div class="reason">这个排名段近两年无可推荐院校</div></div>';
+    // v3.3.5: 空档文案分档改暖——擦线生保档真空=最焦虑时刻，给确定性指引+软钩子
+    const emptyMsg = t.name==='保'
+      ? '这个分段没有更保底的学校了——把冲/稳两档填扎实最关键。拿不准怎么排，<a href="javascript:void(0)" onclick="goLead(\'空档兜底\')" style="color:var(--indigo);text-decoration:none">专家帮你把志愿表排稳 →</a>'
+      : (t.name==='冲'
+        ? '你的位次之上没有更值得冲的学校了，守住稳/保两档就是赢'
+        : '这个排名段近两年没有合适的推荐，换相邻档看看');
+    html = `<div class="tier"><div class="reason">${emptyMsg}</div></div>`;
   } else {
     html = top.map(row=>`<div class="tier ${t.cls}">${schoolCard(dbToSchool(row))}</div>`).join('');
     if(rest.length){
@@ -1014,6 +1033,46 @@ window._leadObs = new IntersectionObserver(es=>{
 },{threshold:.25});
 window._leadObs.observe(document.getElementById('leadCard'));
 function restart(){ localStorage.removeItem('demo_track'); location.reload(); }
+
+/* ============ v3.3.5 会话存档：刷新恢复 + 结果页改分（sessionStorage，关标签即清；手机号永不入档） ============ */
+const SAVE_KEY='sghdx_session';
+let seenAnalysis=false;
+function saveState(screen){
+  try{ sessionStorage.setItem(SAVE_KEY, JSON.stringify({st, estimate, screen})); }catch(e){}
+}
+function reflectForm(){ // 重放式回填：点芯片/填输入全走原事件链，UI 与 st 天然一致
+  const keep={score:st.score, lineTK:st.lineTK, lineBK:st.lineBK, rankVal:st.rankVal, school:st.school, second:[...(st.second||[])]}; // 重放会清空这些，先保住
+  const clickChip=(fn,v)=>{ const el=[...document.querySelectorAll(`.chip[onclick*="${fn}"]`)].find(c=>(c.dataset.v||c.textContent.trim())===v); if(el) el.click(); };
+  if(st.gender) clickChip("gender",st.gender);
+  if(st.first) clickChip("first",st.first);
+  st.second=[]; document.querySelectorAll('.chip[onclick*="pick2"]').forEach(c=>c.classList.remove('on'));
+  keep.second.forEach(v=>clickChip("pick2",v));
+  if(st.rankType){
+    if(['省','市','校'].includes(st.rankType) && $('otherRankBox').style.display==='none') toggleOtherRank();
+    clickChip("pickRankType",st.rankType);
+  }
+  const setVal=(id,v)=>{ if(v!==''&&v!=null){ const el=$(id); el.value=v; el.dispatchEvent(new Event('input')); } };
+  setVal('score',keep.score); setVal('lineTK',keep.lineTK); setVal('lineBK',keep.lineBK);
+  setVal('rankVal',keep.rankVal); setVal('schoolName',keep.school);
+  if(st.career) clickChip("career",st.career);
+  if(st.city) clickChip("city",st.city);
+  refreshBtn();
+}
+function restoreState(){
+  let d=null;
+  try{ d=JSON.parse(sessionStorage.getItem(SAVE_KEY)||'null'); }catch(e){}
+  if(!d||!d.st||!d.st.first) return;
+  Object.assign(st,d.st); estimate=d.estimate||null;
+  reflectForm();
+  if(d.screen==='s3'&&estimate){ // 结果页刷新→直接重建，不重播分析动画
+    seenAnalysis=true;
+    render(); applyCareer(); go('s3');
+    $('quietBar').style.display='block';
+    track('刷新恢复结果页');
+  } else { go('s2'); track('刷新恢复表单页'); }
+}
+function editScore(){ track('结果页改分'); go('s2'); } // 表单内容本就在，直接切回
+restoreState();
 </script>
 </body>
 </html>

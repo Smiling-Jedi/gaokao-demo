@@ -43,7 +43,7 @@ JS_SCORE = """([first, score]) => {
     locateText: document.getElementById('locateText').textContent,
     locateSub: document.getElementById('locateSub').textContent,
     hasLab: !!document.querySelector('.locate .lab'),
-    hasCTA: !!document.querySelector('.locate a'),
+    hasCTA: !!document.querySelector('.locate a[onclick*="goLead"]'),
     tiersOut: document.getElementById('tiers').textContent.includes('综合排序='),
     tiers: [],
   };
@@ -59,11 +59,13 @@ JS_SCORE = """([first, score]) => {
     const pure=[]; const seen=new Set();
     for(const r of rows){ if(pure.length>=3) break; if(seen.has(r[0])) continue; seen.add(r[0]); pure.push(r); }
     const byScore = [...rows].sort((a,b)=>scoreOf(b,estimate.est)-scoreOf(a,estimate.est));
-    // 槽位豁免
+    // 槽位豁免+层次参照（参照卡可能已被前槽消费，此时合法底线=剩余可用最高层次）
     const comp=[pure[0]], cats0=new Set([headCat(pure[0])]), used=new Set([pure[0][0]]);
-    f.slotHad=[];
+    f.slotHad=[]; f.availMaxLvl=[];
     for(let slot=1; slot<3; slot++){
-      let found=false;
+      let found=false, amax=-1;
+      for(const r of rows){ if(!used.has(r[0]) && lvlOf(r)>amax) amax=lvlOf(r); }
+      f.availMaxLvl.push(amax);
       for(const r of rows.slice(0,10)){
         if(used.has(r[0])) continue;
         if(lvlOf(r)<lvlOf(pure[slot]||pure[0])) continue;
@@ -80,7 +82,8 @@ JS_SCORE = """([first, score]) => {
     f.topLvls = top.map(lvlOf);
     f.topTags = top.map(r=>r[7]||'');
     f.topIsRows0 = top[0]===rows[0];
-    f.lvlGuardOK = top.every((r,i)=> i===0 || lvlOf(r) >= lvlOf(pure[i]||pure[0]));
+    f.topLvlsActual = top.map(lvlOf);
+    f.pureLvls = pure.map(lvlOf);
     const c10={}; for(const r of rows.slice(0,10)){ c10[r[0]]=(c10[r[0]]||0)+1; }
     f.top10maxSame = Math.max(...Object.values(c10));
     f.capPermOK = rows.length===byScore.length && rows.every(r=>byScore.includes(r));
@@ -132,7 +135,11 @@ def check_one(first, score, f):
             if c in used and i > 0 and t['slotHad'][i-1]:
                 F(sc, '角色撞车且有候选未用', f"cats={t['topCats']} slotHad={t['slotHad']}")
             used.add(c)
-        if not t['lvlGuardOK']: F(sc, '层次守卫', t['topCats'])
+        for i in (1, 2):  # 层次守卫：参照卡若已被前槽消费，合法底线=剩余可用最高层次
+            if i < len(t['topLvlsActual']):
+                base = t['pureLvls'][i] if i < len(t['pureLvls']) else t['pureLvls'][0]
+                if t['topLvlsActual'][i] < min(base, t['availMaxLvl'][i-1]):
+                    F(sc, '层次守卫', f"top={t['topLvlsActual']} pure={t['pureLvls']} avail={t['availMaxLvl']}")
         if t['top10maxSame'] > 2: F(sc, '前10同校>2', t['top10maxSame'])
         if not t['capPermOK']: F(sc, '档内行排列异常')
         if not t['displacedOK']: F(sc, '被挤出者非限流原因')

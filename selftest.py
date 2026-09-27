@@ -58,7 +58,7 @@ def render_tier(page, first, score, tier_idx):
         locateText: document.getElementById('locateText').textContent,
         locateSub: document.getElementById('locateSub').textContent,
         hasLab: !!document.querySelector('.locate .lab'),
-        hasCTA: !!document.querySelector('.locate a'),
+        hasCTA: !!document.querySelector('.locate a[onclick*="goLead"]'),
         hintForbidden: body.textContent.includes('建议本档挑') || document.getElementById('tiers').textContent.includes('综合排序='),
         topCount: topEls.length,
         topNames: topEls.map(e=>e.querySelector('.c-name').textContent),
@@ -74,8 +74,7 @@ def render_tier(page, first, score, tier_idx):
         topNamesUnique: new Set(top.map(r=>r[0])).size===top.length,
         topCats: top.map(headCat),
         pureCats: pure.map(headCat),
-        lvlGuardOK: top.every((r,i)=> i===0 || lvlOf(r) >= lvlOf(pure[i]||pure[0])),
-        // 角色互补豁免检测：模拟挑选，记录每个槽位是否「池内确无新角色候选」（兜底属设计行为）
+        // 角色互补豁免+层次参照：参照卡可能已被前槽消费，此时合法底线=剩余可用最高层次（v3.3.5 断言修正）
         slotHadCandidate: (()=>{ const comp=[pure[0]], cats=new Set([headCat(pure[0])]), used=new Set([pure[0][0]]);
           const flags=[];
           for(let slot=1; slot<3; slot++){
@@ -92,6 +91,17 @@ def render_tier(page, first, score, tier_idx):
             cats.add(headCat(real)); used.add(real[0]);
           }
           return flags; })(),
+        availMaxLvl: (()=>{ const used=new Set([pure[0][0]]); const out=[];
+          for(let slot=1; slot<3; slot++){
+            let amax=-1;
+            for(const r of rows){ if(!used.has(r[0]) && lvlOf(r)>amax) amax=lvlOf(r); }
+            out.push(amax);
+            const real=top[slot]; if(!real) break;
+            used.add(real[0]);
+          }
+          return out; })(),
+        topLvlsActual: top.map(lvlOf),
+        pureLvls: pure.map(lvlOf),
         capPermOK: rows.length===byScore.length && rows.every(r=>byScore.includes(r)),
         displacedOK: (()=>{ const t10=rows.slice(0,10);
           return byScore.slice(0,10).filter(r=>!t10.includes(r))
@@ -148,7 +158,14 @@ def check_scenario(page, first, score, label):
             used_cats.add(c)
         rec('策略', 'TOP3 头牌角色不撞（兜底需豁免）', sc, role_ok,
             f"cats={cats} 槽位有候选={f['slotHadCandidate']}")
-        rec('策略', 'TOP3 层次守卫（不降档）', sc, f['lvlGuardOK'], f"top={cats} pure={f['pureCats']}")
+        lvl_ok = True  # 层次守卫：参照卡若已被前槽消费，合法底线=剩余可用最高层次
+        for i in (1, 2):
+            if i < len(f['topLvlsActual']):
+                base = f['pureLvls'][i] if i < len(f['pureLvls']) else f['pureLvls'][0]
+                if f['topLvlsActual'][i] < min(base, f['availMaxLvl'][i-1]):
+                    lvl_ok = False
+        rec('策略', 'TOP3 层次守卫（不降档/参照已消费则取剩余最高）', sc, lvl_ok,
+            f"top={f['topLvlsActual']} pure={f['pureLvls']} avail={f['availMaxLvl']}")
         rec('策略', '档内行=byScore 排列（无丢行无重行）', sc, f['capPermOK'])
         rec('策略', '每档前10同校≤2', sc, f['top10schoolCap'] <= 2, f"max={f['top10schoolCap']}")
         rec('策略', '被挤出前10者必因同校已满（限流正当性）', sc, f['displacedOK'])
