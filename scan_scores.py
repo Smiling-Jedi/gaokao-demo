@@ -41,6 +41,7 @@ JS_SCORE = """([first, score]) => {
   render();
   const out = {
     locateText: document.getElementById('locateText').textContent,
+    locateMeta: document.getElementById('locateMeta').textContent,
     locateSub: document.getElementById('locateSub').textContent,
     hasLab: !!document.querySelector('.locate .lab'),
     hasCTA: !!document.querySelector('.locate a[onclick*="goLead"]'),
@@ -119,7 +120,9 @@ JS_SCORE = """([first, score]) => {
 
 def check_one(first, score, f):
     s = f'{first}{score}'
-    if not re.match(rf'^{score} 分 · 全省{first}类约前 [\d,]+ ~ [\d,]+ 名$', f['locateText']):
+    if f['locateMeta'] != f'{first}类 · {score} 分':
+        F(s, '定位卡meta格式', f['locateMeta'])
+    if not re.match(r'^全省约前 [\d,]+ ~ [\d,]+ 名$', f['locateText']):
         F(s, '定位卡大字格式', f['locateText'])
     if f['hasLab'] or f['hasCTA']: F(s, '定位卡标题/引导链残留')
     if f['tiersOut']: F(s, '页底排序说明残留')

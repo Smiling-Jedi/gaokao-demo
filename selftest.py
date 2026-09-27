@@ -56,6 +56,7 @@ def render_tier(page, first, score, tier_idx):
       return {
         tierName: t.name, rowCount: rows.length,
         locateText: document.getElementById('locateText').textContent,
+        locateMeta: document.getElementById('locateMeta').textContent,
         locateSub: document.getElementById('locateSub').textContent,
         hasLab: !!document.querySelector('.locate .lab'),
         hasCTA: !!document.querySelector('.locate a[onclick*="goLead"]'),
@@ -125,8 +126,10 @@ def check_scenario(page, first, score, label):
             rec('数据', '空档兜底文案', sc, True, '本档无可推荐（正常分支）'); continue
         # ---- UI ----
         rec('UI', '定位卡无标题无引导链', scene, not f['hasLab'] and not f['hasCTA'])
-        rec('UI', '定位卡大字=分数·位次区间', scene,
-            bool(re.match(rf'^{score} 分 · 全省{first}类约前 [\d,]+ ~ [\d,]+ 名$', f['locateText'])), f['locateText'])
+        rec('UI', '定位卡三段式 meta=科类·分数', scene,
+            f['locateMeta'] == f'{first}类 · {score} 分', f['locateMeta'])
+        rec('UI', '定位卡大字=位次区间（单行不折）', scene,
+            bool(re.match(r'^全省约前 [\d,]+ ~ [\d,]+ 名$', f['locateText'])), f['locateText'])
         rec('UI', '定位卡小字=超线比例+估算依据', scene,
             f['locateSub'].startswith('超过本科线上约') and '按成绩估算' in f['locateSub'], f['locateSub'])
         rec('UI', '已删文案零残留（档引导/页底说明）', sc, not f['hintForbidden'])
