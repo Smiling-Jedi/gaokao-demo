@@ -87,6 +87,18 @@ def load_tags():
             geo[r['院校名称']] = (r['所在省份'], r['所在城市'])
     return out, geo
 
+def load_heat():
+    """热度标签 → {专业: (auto标签, 冷权重, 热权重)}；auto×1.0 / review×0.5"""
+    out = {}
+    with open(f'{DATA}/staging/就业_专业热度标签_Jev2026_v0.csv', encoding='utf-8-sig') as f:
+        for r in csv.DictReader(f):
+            cls, dec = r['热度标签'], r['裁定']
+            w = 1.0 if dec == 'auto' else 0.5
+            out[r['专业名称']] = (cls if dec == 'auto' else '',
+                                  w if cls == '冷门' else 0,
+                                  w if cls == '热门' else 0)
+    return out
+
 def load_rates(tags):
     """三率 → {校名: (落实率, 保研率)}；非92且保研率>15%=疑似升学率串数，隔离待复核（2026-09-27 排序上线时实证）"""
     out, quarantine = {}, []
@@ -167,6 +179,7 @@ def main():
 
     plans, (tags, geo) = load_plans(), load_tags()
     rates = load_rates(tags)
+    heat = load_heat()
     jobs, AVG, c2m = load_jobs()
     AVG_N = int(AVG)
 
@@ -232,6 +245,27 @@ def main():
             if '合作' in o['gt']: gd += '·合作'
             dkey = f'{kelei}|{o["c"]}|{o["g"]}'
             if majors: detail[dkey] = majors
+            # ── 组热度（auto×1.0+review×0.5 计划加权；Jedi 2026-09-27 拍板）──
+            total_plan = sum(m[1] for m in majors) if majors else 0
+            hw_c = hw_h = 0
+            for m in majors:
+                lab, wc, wh = heat.get(PAREN.sub('', m[0]).strip(), ('', 0, 0))
+                m.append(lab)
+                hw_c += wc * m[1]
+                hw_h += wh * m[1]
+            hot_sh = hw_h / total_plan if total_plan else 0
+            cold_sh = hw_c / total_plan if total_plan else 0
+            heat_score = 0
+            if hot_sh >= 0.7:
+                heat_score += 4
+                tips.append('G:✓ 全组热门专业（就业热度高置信标注）')
+            if cold_sh >= 0.6: heat_score -= 8
+            elif cold_sh >= 0.4: heat_score -= 4
+            if cold_sh >= 0.4:
+                auto_colds = [PAREN.sub('', m[0]) for m in majors if (heat.get(PAREN.sub('', m[0]).strip(), ('',0,0))[0] == '冷门')]
+                named = f'（{"、".join(auto_colds[:2])} 等）' if auto_colds else ''
+                tips.append(f'Y:⚠ 组内 {round(cold_sh*100)}% 计划为冷门专业{named}，压线进组可能被调过去')
+
             # ── 静态排序分（Jedi 2026-09-27 拍板公式）──
             s_lvl = 30 if '985' in tag else (20 if '211' in tag else (10 if '双一流' in tag else 0))
             s_by = float(by) * 1.5 if by else 0
@@ -254,7 +288,7 @@ def main():
             # B: 偏远心智扣分（山西家长视角，Jedi 拍板）
             if re.search(r'西藏|新疆|青海|甘肃|宁夏|内蒙古', geo.get(o['n'], ('', ''))[0]):
                 risk -= 6
-            sb = round(s_lvl + s_by + s_ly + s_pay + risk, 1)
+            sb = round(s_lvl + s_by + s_ly + s_pay + risk + heat_score, 1)
             prov, city = geo.get(o['n'], ('', ''))
             tl = t_level(prov, city)
             vtag = '职业本科' if '职业技术大学' in o['n'] else ''
