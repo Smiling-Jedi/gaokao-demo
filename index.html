@@ -461,6 +461,8 @@ const SCHOOL_FACTOR = {
 
 /* ============ 状态 ============ */
 const st = {gender:'',first:'',second:[],score:'',rankType:'',rankVal:'',lineTK:'',lineBK:'',school:'',career:'',city:'',step:1};
+// P0-8 访客识别：会话级随机 ID（sessionStorage，不含手机号）
+window._sid = sessionStorage.getItem('sghdx_sid') || (()=>{ const v=[...crypto.getRandomValues(new Uint8Array(10))].map(b=>b.toString(16).padStart(2,'0')).join(''); sessionStorage.setItem('sghdx_sid', v); return v; })();
 let estimate = null, firstTrack = true;
 const $ = id => document.getElementById(id);
 function track(ev){ try{ const log = JSON.parse(localStorage.getItem('demo_track')||'[]'); log.push({ev,t:Date.now(),utm:location.search}); localStorage.setItem('demo_track',JSON.stringify(log)); }catch(e){} }
@@ -471,6 +473,7 @@ function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $(id).classList.add('on');
   window.scrollTo(0,0);
+  if(id==='s3') recordVisit(); // P0-8: 看到结果页即记访客（异步不挡渲染）
   if(id!=='s3'){ const qb=$('quietBar'); if(qb) qb.style.display='none'; } // v3.3.7: 离开结果页吸底条必藏（治表单页乱跑）
   if(id==='s2' && firstTrack){ track('开始填写'); firstTrack=false; }
 }
@@ -1015,6 +1018,31 @@ function applyCareer(){
   if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟高考志愿专家聊一次，他帮你做三件事：';
 }
 function toggleLead(){ goLead('页底卡'); }
+function leadPayload(extra){
+  let trail = [];
+  try{ trail = JSON.parse(localStorage.getItem('demo_track')||'[]'); }catch(e){}
+  return Object.assign({sid:window._sid, gender:st.gender||'', first:st.first||'', second:(st.second||[]).join('+'),
+    score:String(st.score||''), rankType:st.rankType||'', rankVal:String(st.rankVal||''),
+    lineTK:String(st.lineTK||''), lineBK:String(st.lineBK||''),
+    school:st.school||'', career:st.career||'', city:st.city||'',
+    est:String(estimate&&estimate.est||''), est_lo:String(estimate&&estimate.lo||''),
+    est_hi:String(estimate&&estimate.hi||''), basis:estimate&&estimate.basis||'',
+    trail:trail, utm:location.search, snapshot:snapshotTiers()}, extra||{});
+}
+function recordVisit(){
+  try{
+    fetch('/api/visit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(leadPayload())}).catch(()=>{});
+  }catch(e){}
+}
+// 页面关闭/切走补发终版轨迹（P0-8：访客「看了什么走的」全量捕获）
+window.addEventListener('pagehide', ()=>{
+  try{
+    if(!document.getElementById('s3').classList.contains('on')) return;
+    let trail = [];
+    try{ trail = JSON.parse(localStorage.getItem('demo_track')||'[]'); }catch(e){}
+    navigator.sendBeacon('/api/visit', new Blob([JSON.stringify({sid:window._sid, trail:trail})], {type:'application/json'}));
+  }catch(e){}
+});
 function snapshotTiers(){
   // v3.4: 留资时快照家长看到的三档 TOP3+理由+数据底子（后台电话话术用；快照不重算，防数据更新后对不上）
   try{
@@ -1035,15 +1063,7 @@ function submitLead(){
   if(v.length<5){ $('contact').style.borderColor='#D4382C'; return; }
   // 双轨：服务器版(整站同源)→真接口；Pages 版无后端→静默存本地兜底
   // 载荷按 pm/后台需求_v1.md 第 3 章：表单全字段+估算+轨迹+utm
-  let trail = [];
-  try{ trail = JSON.parse(localStorage.getItem('demo_track')||'[]'); }catch(e){}
-  const payload = {contact:v, gender:st.gender||'', first:st.first||'', second:(st.second||[]).join('+'),
-                   score:String(st.score||''), rankType:st.rankType||'', rankVal:String(st.rankVal||''),
-                   lineTK:String(st.lineTK||''), lineBK:String(st.lineBK||''),
-                   school:st.school||'', career:st.career||'', city:st.city||'',
-                   est:String(estimate&&estimate.est||''), est_lo:String(estimate&&estimate.lo||''),
-                   est_hi:String(estimate&&estimate.hi||''), basis:estimate&&estimate.basis||'',
-                   trail:trail, utm:location.search, src:window._leadSrc||'', snapshot:snapshotTiers()};
+  const payload = leadPayload({contact:v, src:window._leadSrc||''});
   try{
     fetch('/api/lead', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
       .then(r=>r.json()).then(j=>{ if(j.ok===0 && j.msg) console.warn('lead:', j.msg); })
