@@ -1016,8 +1016,16 @@ function submitLead(){
   const v = $('contact').value.trim();
   if(v.length<5){ $('contact').style.borderColor='#D4382C'; return; }
   // 双轨：服务器版(整站同源)→真接口；Pages 版无后端→静默存本地兜底
-  const payload = {contact:v, first:st.first||'', score:st.score||'', career:st.career||'', region:st.region||'',
-                   est_lo:estimate&&estimate.lo||'', est_hi:estimate&&estimate.hi||'', src:window._leadSrc||''};
+  // 载荷按 pm/后台需求_v1.md 第 3 章：表单全字段+估算+轨迹+utm
+  let trail = [];
+  try{ trail = JSON.parse(localStorage.getItem('demo_track')||'[]'); }catch(e){}
+  const payload = {contact:v, gender:st.gender||'', first:st.first||'', second:(st.second||[]).join('+'),
+                   score:String(st.score||''), rankType:st.rankType||'', rankVal:String(st.rankVal||''),
+                   lineTK:String(st.lineTK||''), lineBK:String(st.lineBK||''),
+                   school:st.school||'', career:st.career||'', city:st.city||'',
+                   est:String(estimate&&estimate.est||''), est_lo:String(estimate&&estimate.lo||''),
+                   est_hi:String(estimate&&estimate.hi||''), basis:estimate&&estimate.basis||'',
+                   trail:trail, utm:location.search, src:window._leadSrc||''};
   try{
     fetch('/api/lead', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
       .then(r=>r.json()).then(j=>{ if(j.ok===0 && j.msg) console.warn('lead:', j.msg); })
