@@ -818,13 +818,9 @@ function schoolCard(s){
   if(s.vtag) tags+=`<span class="sl-tag" style="background:#FDF3E7;color:var(--amber)">${s.vtag}</span>`;
   window._cards=window._cards||{}; window._cards[cid]=s;
   const l3=s.y3.map(y=>`${y[0]}<b>${y[1]}</b>分/<b>${y[2]}</b>名`).join(' '); // v3.3.7: 收紧符号间隙治窄屏折行（字号不降）
-  const badges=[];
-  const rh=regionHit(s._row);
-  if(rh) badges.push('≈'+rh);
-  if(careerScore(s._row)>=8) badges.push('≈'+st.career+'向');
-  const badgeHtml=badges.map(b=>`<span class="sl-tag" style="background:#E8F5EE;color:var(--green)">${b}</span>`).join('');
+  // v3.4: ≈地域/≈方向 标签删除（Jedi：偏好命中已由理由行出声，标签是重复噪音）
   return `<div class="card nc" onclick="tgl(this,'${cid}')">
-    <div class="c-l1"><span class="c-name">${s.n}</span><span class="c-dot">·</span><span class="c-grp">${s.gd}</span>${badgeHtml}${tags?`<span class="nc-tags">${tags}</span>`:''}</div>
+    <div class="c-l1"><span class="c-name">${s.n}</span><span class="c-dot">·</span><span class="c-grp">${s.gd}</span>${tags?`<span class="nc-tags">${tags}</span>`:''}</div>
     <div class="c-l2">${s.brief||'—'}</div>
     <div class="c-l3">${l3}</div>
     ${(()=>{const R=reasonLines(s);return R.length?`<div class="c-reason">${R.join(' · ')}</div>`:''})()}
