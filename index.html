@@ -1015,6 +1015,21 @@ function applyCareer(){
   if(st.career==='还没想好') $('leadGets').textContent = '孩子方向还没定？这正适合跟高考志愿专家聊一次，他帮你做三件事：';
 }
 function toggleLead(){ goLead('页底卡'); }
+function snapshotTiers(){
+  // v3.4: 留资时快照家长看到的三档 TOP3+理由+数据底子（后台电话话术用；快照不重算，防数据更新后对不上）
+  try{
+    if(!window._tierData || !window._tierData.length) return null;
+    const snap = window._tierData.map(t=>({
+      name: t.name,
+      rows: pickTop3(t.rows||[]).map(r=>({
+        n: r[0], gd: r[1], s26: r[3]||'', r26: r[4]||'',
+        reasons: reasonLines(dbToSchool(r)),
+        by: r[12]||'', ly: r[11]||'', pay: r[14]||'', mc: r[10]||''
+      }))
+    })).filter(t=>t.rows.length);
+    return snap.length ? snap : null;
+  }catch(e){ return null; }
+}
 function submitLead(){
   const v = $('contact').value.trim();
   if(v.length<5){ $('contact').style.borderColor='#D4382C'; return; }
@@ -1028,7 +1043,7 @@ function submitLead(){
                    school:st.school||'', career:st.career||'', city:st.city||'',
                    est:String(estimate&&estimate.est||''), est_lo:String(estimate&&estimate.lo||''),
                    est_hi:String(estimate&&estimate.hi||''), basis:estimate&&estimate.basis||'',
-                   trail:trail, utm:location.search, src:window._leadSrc||''};
+                   trail:trail, utm:location.search, src:window._leadSrc||'', snapshot:snapshotTiers()};
   try{
     fetch('/api/lead', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
       .then(r=>r.json()).then(j=>{ if(j.ok===0 && j.msg) console.warn('lead:', j.msg); })
