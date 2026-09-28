@@ -733,7 +733,7 @@ function regionScore(row){
   const c = st.city;
   if(!c || c==='都行' || c==='其他') return T_SCORE[row[20]]||0;
   const ps = PROV_MAP[c]||[];
-  return ps.includes(row[18]) ? 10 : 0;
+  return ps.includes(row[18]) ? 20 : 0; // S-Score v2.2: 地域命中 +20（Jedi 2026-09-28 拍板：同层次竞争地域校必胜，层次守卫兜底）
 }
 function regionHit(row){
   const c = st.city;
@@ -743,12 +743,12 @@ function regionHit(row){
 function careerScore(row){
   const cz = st.career;
   if(!cz || cz==='还没想好') return 0;
-  if(cz==='考公') return Math.min(8,(row[21]||0)*0.25); // S-Score v2.0: 线性化去台阶
-  if(cz==='央国企') return row[25]?8:0;
-  if(cz==='教师') return row[22]?8:0;
-  if(cz==='医生') return row[23]?8:0;
-  if(cz==='科研路线') return row[24]?8:0;
-  if(cz==='新工科') return row[26]?8:0;
+  if(cz==='考公') return Math.min(12,(row[21]||0)*0.35); // S-Score v2.2: +12 封顶（v2.0 线性化去台阶）
+  if(cz==='央国企') return row[25]?12:0; // v2.2
+  if(cz==='教师') return row[22]?12:0; // v2.2
+  if(cz==='医生') return row[23]?12:0; // v2.2
+  if(cz==='科研路线') return row[24]?12:0; // v2.2
+  if(cz==='新工科') return row[26]?12:0; // v2.2
   return 0;
 }
 function scoreOf(row, est){
@@ -790,20 +790,23 @@ function dbLine(row){ // 展开全部的紧凑行：固定两行（上行学校+
   const y25 = s25 ? `25年 ${s25}分/${r25.toLocaleString()}名` : '';
   return `<div class="dbline"><div class="dbl-l1"><b>${n}</b><i>${g}</i></div><div class="dbl-l2">${[y26,y25].filter(Boolean).join(' · ')}</div></div>`;
 }
-/* S-Score v2.0: 推荐理由行——头牌因子翻译人话，≤2 条只说优点 */
+/* S-Score v2.0: 推荐理由行——头牌因子翻译人话，≤2 条只说优点；v2.2: 主动选中的地域命中置顶 */
 function reasonLines(s){
   const r=s._row, R=[];
+  const tl=r[20], rh=regionHit(r);
+  const hitR = rh==='山西本省' ? '本省上学，人脉就业近' : (rh ? `在${rh} · 你的目标地区` : '');
   if((r[15]||'').includes('全组热门专业')) R.push('组内全是热门专业，怎么录都不亏');
   if((r[7]||'').includes('985')) R.push(s.gd.includes('合作')?'985 平台，录取线低一档':'985 平台，牌子硬');
   const by=parseFloat(r[12]); if(by>=20) R.push(`保研率 ${by}%，同分段罕见`);
-  const tl=r[20];
-  if(tl===0) R.push(`${r[19]}，超一线城市`);
-  else if(tl===1) R.push(`${r[19]}，发达城市`);
-  else if(tl===2) R.push('本省上学，人脉就业近');
+  if(!hitR){
+    if(tl===2) R.push('本省上学，人脉就业近');
+    else if(tl===0) R.push(`${r[19]}，超一线城市`);
+    else if(tl===1) R.push(`${r[19]}，发达城市`);
+  }
   if(Math.abs(r[2]-estimate.est)<3000) R.push('录取线贴你位次，不浪费分');
   const ly=parseFloat(r[11]); if(ly>=90) R.push(`落实率 ${ly}%，毕业有着落`);
   if(st.career && st.career!=='还没想好' && careerScore(r)>0) R.push(`${st.career}岗位对口多`);
-  return R.slice(0,2);
+  return (hitR?[hitR]:[]).concat(R).slice(0,2);
 }
 function schoolCard(s){
   window._cardCount=(window._cardCount||0)+1;
