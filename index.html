@@ -169,15 +169,18 @@
   @keyframes pushOut { from { transform:translateX(0); } to { transform:translateX(-30%); } }
 
 /* ===== S5 ===== */
-  .s5-vals { text-align:left; margin:18px auto 6px; max-width:340px; }
-  .s5-val { display:flex; gap:12px; align-items:flex-start; padding:10px 2px; border-bottom:1px solid var(--hair); }
-  .s5-val:last-child { border-bottom:none; }
-  .s5-val .ic { font-size:19px; flex:none; width:26px; text-align:center; }
-  .s5-val .vt { font-size:14.5px; font-weight:700; line-height:1.5; }
-  .s5-val .vd { font-size:12.5px; color:var(--mist); margin-top:2px; line-height:1.6; }
-  .check { text-align:center; font-size:44px; margin:56px 0 12px; color:var(--green); }
+  /* v3.4.0: S5 确认页天青化重做（E 案·步骤连线，设计稿 dev/确认页设计稿_2026-09-28.html） */
+  .s5-badge { width:64px; height:64px; border-radius:50%; background:var(--chipbg); color:var(--indigo); display:flex; align-items:center; justify-content:center; font-size:30px; margin:52px auto 16px; }
   .check-title { text-align:center; font-size:21px; font-weight:800; margin-bottom:10px; }
-  .check-sub { text-align:center; color:var(--mist); font-size:14px; line-height:2.1; margin-bottom:26px; }
+  .check-sub { text-align:center; color:var(--mist); font-size:14px; line-height:1.8; margin-bottom:0; }
+  .s5-head { font-size:12.5px; color:var(--mist); font-weight:700; text-align:center; border-top:1px solid var(--hair); padding-top:18px; margin:22px auto 0; max-width:340px; }
+  .s5-steps { max-width:250px; margin:12px auto 0; text-align:left; }
+  .s5-step { position:relative; padding:4px 0 14px 26px; }
+  .s5-step::before { content:''; position:absolute; left:7px; top:20px; bottom:0; width:2px; background:var(--hair); }
+  .s5-step:last-child::before { display:none; }
+  .s5-step .dot { position:absolute; left:0; top:6px; width:16px; height:16px; border-radius:50%; background:var(--paper); border:2px solid var(--indigo); }
+  .s5-step .vt { font-size:14.5px; font-weight:800; }
+  .s5-step .vd { font-size:12.5px; color:var(--mist); margin-top:1px; line-height:1.6; }
   .tiles { display:flex; gap:8px; }
   .tile { flex:1; background:#F7F9FC; border:1px solid var(--hair); border-radius:10px; padding:10px 8px; text-align:center; }
   .tile .v { font-size:21px; font-weight:800; font-variant-numeric:tabular-nums; }
@@ -409,15 +412,19 @@ tr.xj{display:none}
 
 <!-- ================= S5 确认 ================= -->
 <div class="screen" id="s5">
-  <div class="check">✓</div>
+  <div class="s5-badge">✓</div>
   <div class="check-title">收到！</div>
-  <div class="check-sub">高考志愿专家将在 <b>24 小时内</b>联系你<br>（来电显示太原号码，请留意接听）</div>
-  <div class="s5-vals">
-    <div class="s5-val"><span class="ic">🎯</span><span><span class="vt">聊出方向</span><div class="vd">结合选科、孩子性格和单科成绩，精确到专业的报考方向</div></span></div>
-    <div class="s5-val"><span class="ic">📈</span><span><span class="vt">看清提分</span><div class="vd">孩子成绩趋势和提分空间分析</div></span></div>
-    <div class="s5-val"><span class="ic">🏫</span><span><span class="vt">摸清学校</span><div class="vd">目标院校的真实录取情况和专业就业情况</div></span></div>
+  <div class="check-sub">高考志愿专家将在 <b>24 小时内</b>联系你</div>
+  <div class="s5-head">届时高考志愿专家将协助您</div>
+  <div class="s5-steps">
+    <div class="s5-step"><span class="dot"></span><span class="vt">聊出方向</span><div class="vd">结合选科和孩子情况，精确到专业的报考方向</div></div>
+    <div class="s5-step"><span class="dot"></span><span class="vt">看清提分</span><div class="vd">孩子成绩趋势和提分空间分析</div></div>
+    <div class="s5-step"><span class="dot"></span><span class="vt">摸清学校</span><div class="vd">目标院校的真实录取情况和专业就业情况</div></div>
   </div>
-  <button class="btn ghost" onclick="restart()">再测一次</button>
+  <div style="max-width:340px;margin:0 auto">
+    <button class="btn primary" onclick="go('s3')" style="margin-top:24px">返回推荐结果</button>
+    <button class="btn ghost" onclick="restart()" style="margin-top:10px">再测一次</button>
+  </div>
 </div>
 
 <!-- 留资底部抽屉 -->
@@ -445,7 +452,7 @@ tr.xj{display:none}
 
 <script src="db.js?v=3.3.2"></script>
 <script>
-const VERSION = 'v3.3.8';
+const VERSION = 'v3.4.0';
 /* ============ 演示数据（真实锚点 + 示例院校） ============ */
 /* 2026 山西一分一段真表（Grok采集，双源质检97/97一致） */
 const YF_PHY = {base:401, top:13, topAt:695, ben:[416, 445, 496, 464, 476, 460, 494, 457, 470, 491, 484, 502, 498, 478, 507, 540, 505, 544, 515, 516, 515, 539, 567, 541, 542, 571, 553, 607, 560, 577, 544, 577, 578, 621, 584, 629, 581, 607, 604, 587, 625, 620, 591, 627, 593, 611, 592, 623, 624, 637, 616, 644, 629, 615, 649, 676, 645, 632, 607, 644, 657, 674, 659, 690, 683, 694, 626, 656, 716, 688, 652, 677, 648, 702, 701, 663, 697, 685, 692, 700, 711, 698, 688, 678, 704, 651, 688, 700, 673, 663, 700, 691, 731, 702, 693, 647, 690, 693, 652, 680, 640, 652, 682, 672, 680, 672, 632, 671, 637, 651, 662, 612, 621, 655, 675, 595, 624, 634, 660, 652, 633, 595, 640, 643, 662, 637, 635, 595, 625, 606, 656, 575, 585, 568, 606, 577, 614, 577, 615, 574, 571, 525, 541, 552, 579, 559, 562, 584, 552, 575, 552, 546, 576, 533, 580, 520, 517, 551, 527, 530, 549, 482, 507, 460, 487, 527, 509, 542, 531, 459, 487, 464, 476, 463, 497, 511, 510, 430, 461, 453, 477, 457, 442, 423, 423, 433, 422, 450, 424, 422, 396, 401, 403, 406, 388, 371, 374, 398, 419, 378, 384, 372, 335, 343, 397, 329, 353, 359, 358, 345, 318, 322, 303, 300, 293, 279, 286, 274, 262, 291, 281, 264, 254, 243, 247, 213, 242, 235, 222, 199, 210, 218, 207, 182, 213, 205, 182, 179, 157, 157, 153, 167, 143, 154, 132, 132, 132, 149, 109, 109, 89, 96, 84, 96, 89, 77, 69, 86, 72, 61, 71, 61, 58, 54, 63, 49, 49, 41, 48, 40, 37, 36, 36, 33, 34, 34, 27, 17, 21, 22, 20, 16, 14, 14, 9, 18, 7, 8, 6, 5, 6, 3, 5, 1], cum:[129364, 128948, 128503, 128007, 127543, 127067, 126607, 126113, 125656, 125186, 124695, 124211, 123709, 123211, 122733, 122226, 121686, 121181, 120637, 120122, 119606, 119091, 118552, 117985, 117444, 116902, 116331, 115778, 115171, 114611, 114034, 113490, 112913, 112335, 111714, 111130, 110501, 109920, 109313, 108709, 108122, 107497, 106877, 106286, 105659, 105066, 104455, 103863, 103240, 102616, 101979, 101363, 100719, 100090, 99475, 98826, 98150, 97505, 96873, 96266, 95622, 94965, 94291, 93632, 92942, 92259, 91565, 90939, 90283, 89567, 88879, 88227, 87550, 86902, 86200, 85499, 84836, 84139, 83454, 82762, 82062, 81351, 80653, 79965, 79287, 78583, 77932, 77244, 76544, 75871, 75208, 74508, 73817, 73086, 72384, 71691, 71044, 70354, 69661, 69009, 68329, 67689, 67037, 66355, 65683, 65003, 64331, 63699, 63028, 62391, 61740, 61078, 60466, 59845, 59190, 58515, 57920, 57296, 56662, 56002, 55350, 54717, 54122, 53482, 52839, 52177, 51540, 50905, 50310, 49685, 49079, 48423, 47848, 47263, 46695, 46089, 45512, 44898, 44321, 43706, 43132, 42561, 42036, 41495, 40943, 40364, 39805, 39243, 38659, 38107, 37532, 36980, 36434, 35858, 35325, 34745, 34225, 33708, 33157, 32630, 32100, 31551, 31069, 30562, 30102, 29615, 29088, 28579, 28037, 27506, 27047, 26560, 26096, 25620, 25157, 24660, 24149, 23639, 23209, 22748, 22295, 21818, 21361, 20919, 20496, 20073, 19640, 19218, 18768, 18344, 17922, 17526, 17125, 16722, 16316, 15928, 15557, 15183, 14785, 14366, 13988, 13604, 13232, 12897, 12554, 12157, 11828, 11475, 11116, 10758, 10413, 10095, 9773, 9470, 9170, 8877, 8598, 8312, 8038, 7776, 7485, 7204, 6940, 6686, 6443, 6196, 5983, 5741, 5506, 5284, 5085, 4875, 4657, 4450, 4268, 4055, 3850, 3668, 3489, 3332, 3175, 3022, 2855, 2712, 2558, 2426, 2294, 2162, 2013, 1904, 1795, 1706, 1610, 1526, 1430, 1341, 1264, 1195, 1109, 1037, 976, 905, 844, 786, 732, 669, 620, 571, 530, 482, 442, 405, 369, 333, 300, 266, 232, 205, 188, 167, 145, 125, 109, 95, 81, 72, 54, 47, 39, 33, 28, 22, 19, 14]};
