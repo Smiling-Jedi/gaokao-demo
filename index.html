@@ -1015,15 +1015,26 @@ function toggleLead(){ goLead('页底卡'); }
 function submitLead(){
   const v = $('contact').value.trim();
   if(v.length<5){ $('contact').style.borderColor='#D4382C'; return; }
+  // 双轨：服务器版(整站同源)→真接口；Pages 版无后端→静默存本地兜底
+  const payload = {contact:v, first:st.first||'', score:st.score||'', career:st.career||'', region:st.region||'',
+                   est_lo:estimate&&estimate.lo||'', est_hi:estimate&&estimate.hi||'', src:window._leadSrc||''};
+  try{
+    fetch('/api/lead', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+      .then(r=>r.json()).then(j=>{ if(j.ok===0 && j.msg) console.warn('lead:', j.msg); })
+      .catch(()=>{ saveLeadLocal(v); });
+  }catch(e){ saveLeadLocal(v); }
+  $('sheetMask').classList.remove('on'); $('leadSheet').classList.remove('on');
+  track('留资提交'); go('s5');
+}
+function saveLeadLocal(v){
   try{
     const leads = JSON.parse(localStorage.getItem('demo_leads')||'[]');
     leads.push({contact:v, form:st, estimate, track:JSON.parse(localStorage.getItem('demo_track')||'[]'), t:Date.now()});
     localStorage.setItem('demo_leads',JSON.stringify(leads));
   }catch(e){}
-  $('sheetMask').classList.remove('on'); $('leadSheet').classList.remove('on');
-  track('留资提交'); go('s5');
 }
 function goLead(src){
+  window._leadSrc = src;
   track('轻入口点击:'+src);
   $('quietBar').style.display='none';
   $('sheetMask').classList.add('on');
