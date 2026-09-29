@@ -136,7 +136,7 @@
   /* ===== 留资底部抽屉 ===== */
 .sheet-mask { position:fixed; inset:0; background:rgba(26,34,51,.38); z-index:120; display:none; }
 .sheet-mask.on { display:block; }
-.sheet { position:fixed; left:0; right:0; bottom:0; background:#fff; border-radius:16px 16px 0 0; padding:10px 20px 28px; z-index:121; transform:translateY(105%); transition:transform .25s ease; max-width:480px; margin:0 auto; }
+.sheet { position:fixed; left:0; right:0; bottom:0; background:#fff; border-radius:16px 16px 0 0; padding:10px 20px 28px; z-index:121; transform:translateY(105%); transition:transform .25s ease; max-width:480px; margin:0 auto; max-height:86vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .sheet.on { transform:translateY(0); }
 .sheet .grab { width:36px; height:4px; background:var(--hair); border-radius:2px; margin:2px auto 14px; }
 .sheet .st-t { font-size:17px; font-weight:800; line-height:1.5; margin-bottom:4px; }
@@ -145,6 +145,11 @@
 .sheet input:focus { border-color:var(--indigo); }
 .sheet .tiny { font-size:12.5px; color:#8A94A3; text-align:center; margin-top:10px; line-height:1.7; }
 .sheet .x { position:absolute; top:14px; right:16px; color:#8A94A3; font-size:20px; cursor:pointer; padding:4px; }
+/* ===== v3.5.0 留资两格：城市(原生下拉)+高中(手填)（P0-9 翻案：手填>自定义下拉，2026-09-29 Jedi 拍板） ===== */
+.sheet select { width:100%; border:1.5px solid var(--hair); border-radius:10px; padding:14px 16px; font-size:16px; outline:none; margin-bottom:12px; background:#fff; box-sizing:border-box; }
+.sheet select:focus { border-color:var(--indigo); }
+.sheet select.err, .sheet input.err { border-color:#D4382C; }
+.sheet .miss { font-size:13px; color:#D4382C; margin:-4px 0 10px; display:none; }
 
 /* ===== S2.5 分析过程 ===== */
   .ana-progress { height:4px; background:var(--hair); border-radius:2px; overflow:hidden; margin:20px 0 6px; }
@@ -170,17 +175,19 @@
 
 /* ===== S5 ===== */
   /* v3.4.0: S5 确认页天青化重做（E 案·步骤连线，设计稿 dev/确认页设计稿_2026-09-28.html） */
-  .s5-badge { width:64px; height:64px; border-radius:50%; background:var(--chipbg); color:var(--indigo); display:flex; align-items:center; justify-content:center; font-size:30px; margin:52px auto 16px; }
-  .check-title { text-align:center; font-size:21px; font-weight:800; margin-bottom:10px; }
-  .check-sub { text-align:center; color:var(--mist); font-size:14px; line-height:1.8; margin-bottom:0; }
-  .s5-head { font-size:12.5px; color:var(--mist); font-weight:700; text-align:center; border-top:1px solid var(--hair); padding-top:18px; margin:22px auto 0; max-width:340px; }
-  .s5-steps { max-width:250px; margin:12px auto 0; text-align:left; }
-  .s5-step { position:relative; padding:4px 0 14px 26px; }
-  .s5-step::before { content:''; position:absolute; left:7px; top:20px; bottom:0; width:2px; background:var(--hair); }
-  .s5-step:last-child::before { display:none; }
-  .s5-step .dot { position:absolute; left:0; top:6px; width:16px; height:16px; border-radius:50%; background:var(--paper); border:2px solid var(--indigo); }
-  .s5-step .vt { font-size:14.5px; font-weight:800; }
-  .s5-step .vd { font-size:12.5px; color:var(--mist); margin-top:1px; line-height:1.6; }
+  .s5-badge { width:72px; height:72px; border-radius:50%; background:var(--seal); color:#fff; display:flex; align-items:center; justify-content:center; font-size:34px; margin:64px auto 26px; }
+  .s5-card { border:1.5px solid var(--hair); border-radius:12px; max-width:340px; margin:0 auto 26px; padding:14px 16px; }
+  .s5-card .lbl { font-size:12px; color:#8A94A3; margin-bottom:8px; }
+  .s5-card .l1 { font-size:15px; font-weight:700; margin-bottom:5px; }
+  .s5-card .l2 { font-size:14px; color:var(--mist); display:flex; justify-content:space-between; align-items:center; }
+  .s5-card .l2 a { color:var(--indigo); cursor:pointer; font-size:13px; flex:none; }
+  .s5-vals { max-width:340px; margin:0 auto; text-align:left; }
+  .s5-vals .vh { font-size:13px; color:var(--mist); font-weight:700; margin-bottom:12px; }
+  .s5-vals .vi { display:flex; gap:9px; margin-bottom:14px; line-height:1.6; }
+  .s5-vals .vi:last-child { margin-bottom:0; }
+  .s5-vals .vi > b { color:var(--seal); flex:none; }
+  .s5-vals .vt2 { font-size:14.5px; font-weight:700; }
+  .s5-vals .vd2 { font-size:12.5px; color:var(--mist); }
   .tiles { display:flex; gap:8px; }
   .tile { flex:1; background:#F7F9FC; border:1px solid var(--hair); border-radius:10px; padding:10px 8px; text-align:center; }
   .tile .v { font-size:21px; font-weight:800; font-variant-numeric:tabular-nums; }
@@ -413,17 +420,19 @@ tr.xj{display:none}
 <!-- ================= S5 确认 ================= -->
 <div class="screen" id="s5">
   <div class="s5-badge">✓</div>
-  <div class="check-title">收到！</div>
-  <div class="check-sub">高考志愿专家将在 <b>24 小时内</b>联系你</div>
-  <div class="s5-head">届时高考志愿专家将协助您</div>
-  <div class="s5-steps">
-    <div class="s5-step"><span class="dot"></span><span class="vt">聊出方向</span><div class="vd">结合选科和孩子情况，精确到专业的报考方向</div></div>
-    <div class="s5-step"><span class="dot"></span><span class="vt">看清提分</span><div class="vd">孩子成绩趋势和提分空间分析</div></div>
-    <div class="s5-step"><span class="dot"></span><span class="vt">摸清学校</span><div class="vd">目标院校的真实录取情况和专业就业情况</div></div>
+  <div class="s5-card">
+    <div class="lbl">你留下的信息</div>
+    <div class="l1" id="s5Info1"></div>
+    <div class="l2"><span id="s5Info2"></span><a onclick="goLead('S5改信息')">填错了 › 重留</a></div>
+  </div>
+  <div class="s5-vals">
+    <div class="vh">接下来专家帮你：</div>
+    <div class="vi"><b>✓</b><div><span class="vt2">聊出方向</span><div class="vd2">结合选科和孩子情况，精确到专业的报考方向</div></div></div>
+    <div class="vi"><b>✓</b><div><span class="vt2">看清提分</span><div class="vd2">孩子成绩趋势和提分空间分析</div></div></div>
+    <div class="vi"><b>✓</b><div><span class="vt2">摸清学校</span><div class="vd2">目标院校的真实录取情况和专业就业情况</div></div></div>
   </div>
   <div style="max-width:340px;margin:0 auto">
-    <button class="btn primary" onclick="go('s3')" style="margin-top:24px">返回推荐结果</button>
-    <button class="btn ghost" onclick="restart()" style="margin-top:10px">再测一次</button>
+    <button class="btn primary" onclick="go('s3')" style="margin-top:26px">返回推荐结果</button>
   </div>
 </div>
 
@@ -434,6 +443,10 @@ tr.xj{display:none}
   <div class="grab"></div>
   <div class="st-t">高考志愿专家帮你算准这个区间</div>
   <div class="st-sub">留手机号或微信，24 小时内联系你（首次沟通免费）</div>
+  <!-- v3.5.0 P0-9：城市(原生下拉)+在读高中(手填)（诚意筛子+高报师备料） -->
+  <select id="homeCitySel" onchange="onLeadCity(this.value)"><option value="" selected>所在城市</option></select>
+  <input id="highSchoolIn" type="text" placeholder="在读高中" oninput="onLeadSchool(this.value)">
+  <div class="miss" id="leadMiss"></div>
   <input id="contact" type="text" inputmode="text" placeholder="手机号 或 微信号">
   <button class="btn primary" onclick="submitLead()">提交</button>
 </div>
@@ -452,7 +465,7 @@ tr.xj{display:none}
 
 <script src="db.js?v=3.3.2"></script>
 <script>
-const VERSION = 'v3.4.0';
+const VERSION = 'v3.5.0';
 /* ============ 演示数据（真实锚点 + 示例院校） ============ */
 /* 2026 山西一分一段真表（Grok采集，双源质检97/97一致） */
 const YF_PHY = {base:401, top:13, topAt:695, ben:[416, 445, 496, 464, 476, 460, 494, 457, 470, 491, 484, 502, 498, 478, 507, 540, 505, 544, 515, 516, 515, 539, 567, 541, 542, 571, 553, 607, 560, 577, 544, 577, 578, 621, 584, 629, 581, 607, 604, 587, 625, 620, 591, 627, 593, 611, 592, 623, 624, 637, 616, 644, 629, 615, 649, 676, 645, 632, 607, 644, 657, 674, 659, 690, 683, 694, 626, 656, 716, 688, 652, 677, 648, 702, 701, 663, 697, 685, 692, 700, 711, 698, 688, 678, 704, 651, 688, 700, 673, 663, 700, 691, 731, 702, 693, 647, 690, 693, 652, 680, 640, 652, 682, 672, 680, 672, 632, 671, 637, 651, 662, 612, 621, 655, 675, 595, 624, 634, 660, 652, 633, 595, 640, 643, 662, 637, 635, 595, 625, 606, 656, 575, 585, 568, 606, 577, 614, 577, 615, 574, 571, 525, 541, 552, 579, 559, 562, 584, 552, 575, 552, 546, 576, 533, 580, 520, 517, 551, 527, 530, 549, 482, 507, 460, 487, 527, 509, 542, 531, 459, 487, 464, 476, 463, 497, 511, 510, 430, 461, 453, 477, 457, 442, 423, 423, 433, 422, 450, 424, 422, 396, 401, 403, 406, 388, 371, 374, 398, 419, 378, 384, 372, 335, 343, 397, 329, 353, 359, 358, 345, 318, 322, 303, 300, 293, 279, 286, 274, 262, 291, 281, 264, 254, 243, 247, 213, 242, 235, 222, 199, 210, 218, 207, 182, 213, 205, 182, 179, 157, 157, 153, 167, 143, 154, 132, 132, 132, 149, 109, 109, 89, 96, 84, 96, 89, 77, 69, 86, 72, 61, 71, 61, 58, 54, 63, 49, 49, 41, 48, 40, 37, 36, 36, 33, 34, 34, 27, 17, 21, 22, 20, 16, 14, 14, 9, 18, 7, 8, 6, 5, 6, 3, 5, 1], cum:[129364, 128948, 128503, 128007, 127543, 127067, 126607, 126113, 125656, 125186, 124695, 124211, 123709, 123211, 122733, 122226, 121686, 121181, 120637, 120122, 119606, 119091, 118552, 117985, 117444, 116902, 116331, 115778, 115171, 114611, 114034, 113490, 112913, 112335, 111714, 111130, 110501, 109920, 109313, 108709, 108122, 107497, 106877, 106286, 105659, 105066, 104455, 103863, 103240, 102616, 101979, 101363, 100719, 100090, 99475, 98826, 98150, 97505, 96873, 96266, 95622, 94965, 94291, 93632, 92942, 92259, 91565, 90939, 90283, 89567, 88879, 88227, 87550, 86902, 86200, 85499, 84836, 84139, 83454, 82762, 82062, 81351, 80653, 79965, 79287, 78583, 77932, 77244, 76544, 75871, 75208, 74508, 73817, 73086, 72384, 71691, 71044, 70354, 69661, 69009, 68329, 67689, 67037, 66355, 65683, 65003, 64331, 63699, 63028, 62391, 61740, 61078, 60466, 59845, 59190, 58515, 57920, 57296, 56662, 56002, 55350, 54717, 54122, 53482, 52839, 52177, 51540, 50905, 50310, 49685, 49079, 48423, 47848, 47263, 46695, 46089, 45512, 44898, 44321, 43706, 43132, 42561, 42036, 41495, 40943, 40364, 39805, 39243, 38659, 38107, 37532, 36980, 36434, 35858, 35325, 34745, 34225, 33708, 33157, 32630, 32100, 31551, 31069, 30562, 30102, 29615, 29088, 28579, 28037, 27506, 27047, 26560, 26096, 25620, 25157, 24660, 24149, 23639, 23209, 22748, 22295, 21818, 21361, 20919, 20496, 20073, 19640, 19218, 18768, 18344, 17922, 17526, 17125, 16722, 16316, 15928, 15557, 15183, 14785, 14366, 13988, 13604, 13232, 12897, 12554, 12157, 11828, 11475, 11116, 10758, 10413, 10095, 9773, 9470, 9170, 8877, 8598, 8312, 8038, 7776, 7485, 7204, 6940, 6686, 6443, 6196, 5983, 5741, 5506, 5284, 5085, 4875, 4657, 4450, 4268, 4055, 3850, 3668, 3489, 3332, 3175, 3022, 2855, 2712, 2558, 2426, 2294, 2162, 2013, 1904, 1795, 1706, 1610, 1526, 1430, 1341, 1264, 1195, 1109, 1037, 976, 905, 844, 786, 732, 669, 620, 571, 530, 482, 442, 405, 369, 333, 300, 266, 232, 205, 188, 167, 145, 125, 109, 95, 81, 72, 54, 47, 39, 33, 28, 22, 19, 14]};
@@ -1028,6 +1041,7 @@ function leadPayload(extra){
     score:String(st.score||''), rankType:st.rankType||'', rankVal:String(st.rankVal||''),
     lineTK:String(st.lineTK||''), lineBK:String(st.lineBK||''),
     school:st.school||'', career:st.career||'', city:st.city||'',
+    homeCity:typeof leadCity!=='undefined'?leadCity:'', highSchool:typeof leadSchool!=='undefined'?leadSchool:'',
     est:String(estimate&&estimate.est||''), est_lo:String(estimate&&estimate.lo||''),
     est_hi:String(estimate&&estimate.hi||''), basis:estimate&&estimate.basis||'',
     trail:trail, utm:location.search, snapshot:snapshotTiers()}, extra||{});
@@ -1062,6 +1076,7 @@ function snapshotTiers(){
   }catch(e){ return null; }
 }
 function submitLead(){
+  if(!leadPickCheck()) return; // v3.5.0 P0-9：城市+高中两必填（诚意筛子本体）
   const v = $('contact').value.trim();
   if(v.length<5){ $('contact').style.borderColor='#D4382C'; return; }
   // 双轨：服务器版(整站同源)→真接口；Pages 版无后端→静默存本地兜底
@@ -1073,15 +1088,45 @@ function submitLead(){
       .catch(()=>{ saveLeadLocal(v); });
   }catch(e){ saveLeadLocal(v); }
   $('sheetMask').classList.remove('on'); $('leadSheet').classList.remove('on');
+  // v3.5.0 S5 重做：信息卡=回执+纠错口（脱敏号+城市+高中），「填错了›重留」回抽屉
+  const m = /^1\d{10}$/.test(v) ? v.slice(0,3)+'****'+v.slice(7) : (v[0]||'')+'***';
+  $('s5Info1').textContent = `${leadCity} · ${leadSchool}`;
+  $('s5Info2').textContent = m;
   track('留资提交'); go('s5');
 }
 function saveLeadLocal(v){
   try{
     const leads = JSON.parse(localStorage.getItem('demo_leads')||'[]');
-    leads.push({contact:v, form:st, estimate, track:JSON.parse(localStorage.getItem('demo_track')||'[]'), t:Date.now()});
+    leads.push({contact:v, homeCity:leadCity, highSchool:leadSchool, form:st, estimate, track:JSON.parse(localStorage.getItem('demo_track')||'[]'), t:Date.now()});
     localStorage.setItem('demo_leads',JSON.stringify(leads));
   }catch(e){}
 }
+/* ============ v3.5.0 P0-9 留资两格：所在城市(原生下拉)+在读高中(手填)（翻案：手填=熟手+更筛人，2026-09-29 Jedi 拍板） ============ */
+const SX_CITIES = ['太原市','大同市','阳泉市','长治市','晋城市','朔州市','晋中市','运城市','忻州市','临汾市','吕梁市'];
+let leadCity = '', leadSchool = '';
+$('homeCitySel').innerHTML += SX_CITIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+$('homeCitySel').style.color = '#9AA3B2';
+function showMiss(t){ const m=$('leadMiss'); m.textContent=t; m.style.display=t?'block':'none'; }
+function onLeadCity(v){
+  leadCity=v;
+  const s=$('homeCitySel'); s.classList.remove('err'); s.style.color=v?'var(--ink)':'#9AA3B2';
+  if(v) showMiss(''); saveState();
+}
+function onLeadSchool(v){
+  leadSchool=v.trim();
+  if(leadSchool){ $('highSchoolIn').classList.remove('err'); showMiss(''); }
+  saveState();
+}
+function reflectLeadPicks(){ // 会话恢复同步两格
+  if(leadCity){ $('homeCitySel').value=leadCity; $('homeCitySel').style.color='var(--ink)'; }
+  if(leadSchool) $('highSchoolIn').value=leadSchool;
+}
+function leadPickCheck(){ // 提交前校验：两必填，缺啥点啥
+  if(!leadCity){ showMiss('还差：所在城市'); $('homeCitySel').classList.add('err'); return false; }
+  if(leadSchool.length<2){ showMiss('还差：在读高中'); $('highSchoolIn').classList.add('err'); return false; }
+  showMiss(''); return true;
+}
+
 function goLead(src){
   window._leadSrc = src;
   track('轻入口点击:'+src);
@@ -1106,12 +1151,14 @@ window._leadObs = new IntersectionObserver(es=>{
   });
 },{threshold:.25});
 window._leadObs.observe(document.getElementById('leadCard'));
-function restart(){ localStorage.removeItem('demo_track'); location.reload(); }
 
 /* ============ v3.3.5 会话存档：刷新恢复 + 结果页改分（sessionStorage，关标签即清；手机号永不入档） ============ */
 const SAVE_KEY='sghdx_session';
 function saveState(screen){
-  try{ sessionStorage.setItem(SAVE_KEY, JSON.stringify({st, estimate, screen})); }catch(e){}
+  if(screen===undefined){ try{ screen=JSON.parse(sessionStorage.getItem(SAVE_KEY)||'{}').screen; }catch(e){} } // 留资两格触发时不丢当前屏
+  try{ sessionStorage.setItem(SAVE_KEY, JSON.stringify({st, estimate, screen,
+    leadCity:typeof leadCity!=='undefined'?leadCity:'', leadSchool:typeof leadSchool!=='undefined'?leadSchool:'',
+})); }catch(e){} // v3.5.0：留资两格入档（手机号依旧永不入档）
 }
 function reflectForm(){ // 重放式回填：点芯片/填输入全走原事件链，UI 与 st 天然一致
   const keep={score:st.score, lineTK:st.lineTK, lineBK:st.lineBK, rankVal:st.rankVal, school:st.school, second:[...(st.second||[])]}; // 重放会清空这些，先保住
@@ -1136,6 +1183,7 @@ function restoreState(){
   try{ d=JSON.parse(sessionStorage.getItem(SAVE_KEY)||'null'); }catch(e){}
   if(!d||!d.st||!d.st.first) return;
   Object.assign(st,d.st); estimate=d.estimate||null;
+  if(typeof d.leadCity!=='undefined'){ leadCity=d.leadCity||''; leadSchool=d.leadSchool||''; reflectLeadPicks(); }
   reflectForm();
   if(d.screen==='s3'&&estimate){ // 结果页刷新→直接重建，不重播分析动画
     render(); applyCareer(); go('s3');
@@ -1145,7 +1193,8 @@ function restoreState(){
 }
 function editScore(){ track('结果页改分'); go('s2'); } // 表单内容本就在，直接切回
 // v3.3.7: 键盘遮挡浮层治理（iOS/老 Chrome 兜底）——可视视口被键盘挤压时，留资抽屉底边上移
-if(window.visualViewport){
+// v3.5.0 修补：只在触屏设备启用——PC 触控板捏合缩放会误触发把抽屉顶出可视区（Jedi 实测提交按钮被挤没）
+if(window.visualViewport && matchMedia('(pointer:coarse)').matches){
   visualViewport.addEventListener('resize', ()=>{
     const kb = window.innerHeight - visualViewport.height;
     const sh = $('leadSheet');
