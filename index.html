@@ -258,6 +258,8 @@
 /* v3.6.0 PRD候选-2：25年专业分列——数字恒居中+组线标紧贴右侧外挂 */
 .mtable .num{position:relative;display:inline-block}
 .mtable .cold-d{position:absolute;left:calc(100% + 4px);top:50%;transform:translateY(-50%);white-space:nowrap;font-size:11px;color:var(--indigo);font-weight:400}
+/* v3.6.0 表头排版修复（Jedi 实测）：分区标题跨列居中+子列表头与数据对齐（.mtable th 的 left 压掉了 .detail th 的居中，此处夺回） */
+.detail .mtable th{text-align:center}
 /* v3.6.0 提示区（Jedi 2026-09-30 拍板：合并单容器分行，风险琥珀/好消息绿/普通灰） */
 .tipbox{background:#F6F8FB;border-radius:10px;padding:8px 12px;margin-top:8px;font-size:12.5px;line-height:1.8}
 .tipbox .t-warn{color:var(--amber)}
