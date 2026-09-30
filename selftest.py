@@ -175,9 +175,9 @@ def check_scenario(page, first, score, label):
         rec('策略', '10名后=下沉组降序+剩余严格按分序', sc, f['tailOrderOK'])
         # ---- 交互（rest 结构）----
         if f['rest']:
-            exp_cards = min(5, f['rest']['total'])
-            rec('交互', '展开全部前5=mini卡、其余紧凑行', sc,
-                f['rest']['cardCount'] == exp_cards and f['rest']['lineCount'] == f['rest']['total'] - exp_cards,
+            # v3.6.0: 展开全部=纯紧凑行（mini 大卡已撤，每档大卡=TOP3）
+            rec('交互', '展开全部=纯紧凑行（无 mini 大卡）', sc,
+                f['rest']['cardCount'] == 0 and f['rest']['lineCount'] == f['rest']['total'],
                 json.dumps(f['rest'], ensure_ascii=False))
 
 def check_interaction_live(page):
@@ -189,24 +189,29 @@ def check_interaction_live(page):
       document.getElementById('s3').classList.add('on');
       render(); switchTier(1);
       const body = document.getElementById('tierBody');
+      // v3.6.0: 展开全部=紧凑小行（rest mini 大卡已撤，Jedi 拍板每档大卡=TOP3）
       toggleRest(body.querySelector('.opt-toggle'), 0);
-      const rc = document.querySelector('.rest-list > .tier .card.nc');
-      rc.click();
+      const rl = document.querySelector('.rest-list');
+      const restOpen = rl && rl.style.display!=='none' && rl.querySelector('.dbline')!==null && rl.querySelector('.card.nc')===null;
+      // 大卡展开走 TOP 卡
+      const c1 = body.querySelector(':scope > .tier .card.nc');
+      c1.click();
       await new Promise(r=>setTimeout(r,1200));
-      const d1 = rc.querySelector('.detail');
+      const d1 = c1.querySelector('.detail');
       const opened = d1.style.display!=='none' && d1.innerHTML.includes('mtable');
       // 大卡三段+表格人数居中
       const secOK = ['组内专业','毕业后去向','职业与薪酬'].filter(h=>d1.innerHTML.includes(h)).length;
       const nCell = d1.querySelector('.mtable .n');
       const nAlign = nCell ? getComputedStyle(nCell).textAlign : 'missing';
       const hotChips = [...d1.querySelectorAll('.heat.hot')].map(h=>getComputedStyle(h).backgroundColor);
-      const top = body.querySelector(':scope > .tier .card.nc');
-      top.click();
+      const c2 = [...body.querySelectorAll(':scope > .tier .card.nc')][1];
+      c2.click();
       await new Promise(r=>setTimeout(r,600));
-      const accordion = d1.style.display==='none' && top.querySelector('.detail').style.display!=='none';
-      return {opened, secOK, nAlign, hotChips, accordion};
+      const accordion = d1.style.display==='none' && c2.querySelector('.detail').style.display!=='none';
+      return {restOpen, opened, secOK, nAlign, hotChips, accordion};
     }""")
-    rec('交互', 'rest mini卡可点展开大卡（含明细表）', '物理580/稳', out['opened'])
+    rec('交互', '展开全部=紧凑小行（无 mini 大卡）', '物理580/稳', out['restOpen'])
+    rec('交互', 'TOP 卡可点展开大卡（含明细表）', '物理580/稳', out['opened'])
     rec('UI', '大卡三段齐全（专业/去向/薪酬）', '物理580/稳', out['secOK'] >= 2, f"命中{out['secOK']}段（薪酬段依赖数据）")
     rec('UI', '明细表人数列居中', '物理580/稳', out['nAlign'] == 'center', out['nAlign'])
     rec('UI', '热 chip 暖杏底 #FDF3E7', '物理580/稳',

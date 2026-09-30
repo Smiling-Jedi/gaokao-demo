@@ -158,9 +158,9 @@ def check_one(first, score, f):
         if t['warnBad']: F(sc, '灰签格式违规', t['warnBad'])
         if t['hintBad']: F(sc, '档引导残留')
         if 'restTotal' in t:
-            exp = min(5, t['restTotal'])
-            if t['restCards'] != exp or t['restLines'] != t['restTotal'] - exp:
-                F(sc, '展开全部结构', f"cards={t['restCards']}/{exp} lines={t['restLines']}/{t['restTotal']-exp}")
+            # v3.6.1: 展开全部=纯紧凑行（mini 大卡撤销，每档大卡=TOP3，表姐夫建议/Jedi 拍板）
+            if t['restCards'] != 0 or t['restLines'] != t['restTotal']:
+                F(sc, '展开全部结构', f"cards={t['restCards']}/0 lines={t['restLines']}/{t['restTotal']}")
 
 def main():
     with sync_playwright() as p:
