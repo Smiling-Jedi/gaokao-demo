@@ -258,6 +258,11 @@
 /* v3.6.0 PRD候选-2：25年专业分列——数字恒居中+组线标紧贴右侧外挂 */
 .mtable .num{position:relative;display:inline-block}
 .mtable .cold-d{position:absolute;left:calc(100% + 4px);top:50%;transform:translateY(-50%);white-space:nowrap;font-size:11px;color:var(--indigo);font-weight:400}
+/* v3.6.0 提示区（Jedi 2026-09-30 拍板：合并单容器分行，风险琥珀/好消息绿/普通灰） */
+.tipbox{background:#F6F8FB;border-radius:10px;padding:8px 12px;margin-top:8px;font-size:12.5px;line-height:1.8}
+.tipbox .t-warn{color:var(--amber)}
+.tipbox .t-good{color:var(--green)}
+.tipbox .t-info{color:#8A94A3}
 .mtable .hp{color:var(--amber);font-size:12px;margin-left:4px}
 .mtable .yr{font-size:12px;color:#8A94A3;margin-left:4px}
 .heat{display:inline-block;font-size:11px;border-radius:3px;padding:0 4px;margin-left:5px;font-weight:600;vertical-align:1px}
@@ -894,21 +899,23 @@ function renderDetail(s){
     const glMark=(v&&s25lo(v)===s.s25)?'<span class="cold-d">组线</span>':'';
     return `<tr class="${i>=SHOW?'xj':''}"><td>${m[0]}${yrMark}${feeMark}${heatMark}</td><td class="n">${m[1]} 人</td><td class="sc"><span class="num">${v==null?'—':v}${glMark}</span></td></tr>`;
   }).join('');
-  // v3.6.0 提示条三态：只留判断句（定位由表格自述）；全组无25年分不出条
-  let s25tip='';
+  // v3.6.0 提示区（Jedi 2026-09-30：合并单容器；穿插条删——说不清的不说；全组无25年分不出压线/甜枣行）
+  const tipLines=[];
   const myScore=+st.score||0;
   const srows=majors.filter(m=>m[6]!=null);
   if(myScore&&srows.length){
     const lo=Math.min(...srows.map(m=>s25lo(m[6])));
     const hi=Math.max(...srows.map(m=>typeof m[6]==='string'?+m[6].split('~')[1]:m[6]));
-    if(myScore>=hi) s25tip=`<span class="pill good">按25年线，你的 ${myScore}，组内 ${majors.length} 个专业随便挑</span>`;
+    if(myScore>=hi) tipLines.push(`<div class="t-good">按25年线，你的 ${myScore}，组内 ${majors.length} 个专业随便挑</div>`);
     else if(myScore<lo){
       const cold=srows[srows.length-1][0].replace(/[（(].*/,''); // 已按分降序，末行=最低
-      s25tip=`<span class="pill warn">小提示：压线进这个组，就是去读${cold}（${lo}）的，能接受再冲</span>`;
-    } else s25tip=`<span class="pill warn">小提示：有看上的，这组才值得报</span>`;
+      tipLines.push(`<div class="t-warn">压线进这个组，就是去读${cold}（${lo}）的，能接受再冲</div>`);
+    }
   }
+  const s25tip=tipLines.join('');
   const moreHtml=majors.length>SHOW?`<div class="more-majors" onclick="event.stopPropagation();this.closest('.detail').querySelectorAll('tr.xj').forEach(r=>r.style.display='table-row');this.remove()">还有 ${majors.length-SHOW} 个专业 ▾</div>`:'';
-  const tips=s.tips?s.tips.split('|').map(t=>`<span class="pill ${t[0]==='G'?'good':'warn'}">${t[0]==='G'?t.slice(2):'小提示：'+t.slice(2)}</span>`).join(' '):'';
+  const tips=s.tips?s.tips.split('|').map(t=>t[0]==='G'?`<div class="t-good">${t.slice(2)}</div>`:`<div class="t-info">${t.slice(2)}</div>`).join(''):'';
+  const tipbox=(s25tip||tips)?`<div class="tipbox">${s25tip}${tips}</div>`:'';
   const rateTiles=[
     s.ly?`<div class="tile"><div class="k">落实率</div><div class="v">${s.ly}%</div></div>`:`<div class="tile na slim"><div class="v">落实率 · 学校未公布</div></div>`,
     s.by?`<div class="tile"><div class="k">保研率</div><div class="v">${s.by}%</div></div>`:''].join('');
@@ -922,8 +929,7 @@ function renderDetail(s){
   }
   return `<h4>组内专业</h4>
   <div class="common">${common}</div>
-  ${majors.length?`<table class="mtable"><tr><th colspan="2">26年专业组招生计划</th><th>25年最低分参考</th></tr><tr><th>专业</th><th>人数</th><th>注：26年尚未公布</th></tr>${rows}</table>${moreHtml}${s25tip}`:'<div class="common">该组暂无 2026 招生计划明细</div>'}
-  ${tips}
+  ${majors.length?`<table class="mtable"><tr><th colspan="2">26年专业组招生计划</th><th>25年最低分参考</th></tr><tr><th>专业</th><th>人数</th><th>注：26年尚未公布</th></tr>${rows}</table>${moreHtml}${tipbox}`:'<div class="common">该组暂无 2026 招生计划明细</div>'}
   <h4>毕业后去向</h4>
   <div class="tiles">${rateTiles}</div>
   ${chips?`<h4>职业与薪酬</h4><div class="way-chips">${chips}</div><div class="tiles">${payTiles}</div>`:''}`;

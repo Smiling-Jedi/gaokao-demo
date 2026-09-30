@@ -255,22 +255,11 @@ def main():
             res = 1 if sum(cls_cnt[c] for c in RES_CLS) / cls_total >= 0.08 else 0
             soe = 1 if sum(cls_cnt[c] for c in SOE_CLS) / cls_total >= 0.30 else 0
             eng = 1 if sum(cls_cnt[c] for c in ENG_CLS) / cls_total >= 0.30 else 0
-            # tips
+            # tips（v3.6.0 提示区清理，Jedi 2026-09-30 拍板：删学费差异/校区不同/色盲色弱三类——偏好信息不占提示位）
             tips = []
             fees = [m[2] for m in majors if isinstance(m[2], int)]
             if majors and all(re.search(r'试验班|荣誉班|精英班|创新班', m[0]) for m in majors):
                 tips.append('G:✓ 全组试验班/特色班，进组即好专业')
-            if fees and max(fees) - min(fees) > 2000:
-                hi = max(fees)
-                n_hi = sum(1 for f in fees if f == hi)
-                wan = lambda v: f'{v/10000:g} 万' if v >= 10000 else f'{v:,} 元'
-                tips.append(f'Y:{n_hi} 个名额学费 {wan(hi)}/年，其余为 {wan(min(fees))}')
-            body = [m for m in majors if re.search(r'色盲|色弱|身高', m[4])]
-            if body:
-                tips.append(f'Y:{len(body)} 个专业有色盲色弱等身体限制')
-            campus_set = {re.search(r'办学地点([^;；,，]*)', m[4]).group(1) for m in majors if re.search(r'办学地点([^;；,，]*校区)', m[4])}
-            if len(campus_set) > 1:
-                tips.append('Y:组内专业在不同校区上课')
             total = sum(m[1] for m in majors)
             if majors and total <= 10:
                 tips.append(f'Y:全组仅 {total} 人，分数线历年波动较大')
