@@ -299,7 +299,7 @@ def main():
 
             # ── 静态排序分 S-Score v2.0（2026-09-27 Jedi 拍板）──
             s_lvl = 30 if '985' in tag else (20 if '211' in tag else (10 if '双一流' in tag else 0))
-            s_by = float(by) * 1.0 if by else 0  # v2.0: ×1.5→×1.0（远变量+口径风险降权）
+            s_by = float(by) * 0.5 if by else 0  # v2.3: ×1.0→×0.5（校级口径套组级折损，良级数据上限 15；v2.0 曾 ×1.5→×1.0）
             if '合作' in gd: s_by *= 0.5  # v2.0: 合作组保研折半（项目实际保研远低于全校口径）
             s_ly = (float(ly) - 80) * 0.5 if ly else 0
             import statistics
