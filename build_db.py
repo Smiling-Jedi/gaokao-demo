@@ -61,6 +61,22 @@ def parse_pdf(path, yfd):
                 rows.append({'c': code, 'n': name, 'g': g, 'gt': grp, 's': int(score), 'r': rank_of(yfd, int(score))})
     return rows, dropped
 
+def load_scores25():
+    """2025 专业分明细 → {(校名norm, 专业名norm): [分数,...]}（PRD 候选-2，2026-09-30 定稿）
+    归并规则：按专业名（去括号）不按组码；仅本科批；剔专项/预科/民族班/定向（数据红线）；
+    校区校（威海/荣昌/马来/大同）校名去括号后主校名归并"""
+    out = {}
+    for ke in ['物理', '历史']:
+        with open(f'{DATA}/prod/专业/2025{ke}专业分_明细.csv', encoding='utf-8-sig') as f:
+            for r in csv.DictReader(f):
+                if r['批次'] != '本科批': continue
+                if EXCLUDE.search(r['专业组']) or EXCLUDE.search(r['专业名称']) or EXCLUDE.search(r['备注'] or ''): continue
+                if not r['最低分'].strip().isdigit(): continue
+                sn = PAREN.sub('', r['院校名称']).strip()
+                mn = PAREN.sub('', r['专业名称']).strip()
+                out.setdefault((sn, mn), []).append(int(r['最低分']))
+    return out
+
 def load_plans():
     """2026 招生计划 → {(校码,组码): {xk, majors[[name,cnt,fee,yr,note]]}}"""
     out = {}
@@ -181,6 +197,7 @@ def main():
     rates = load_rates(tags)
     heat = load_heat()
     jobs, AVG, AVG5, c2m = load_jobs()
+    s25map = load_scores25()
     AVG_N, AVG5_N = int(AVG), int(AVG5)
 
     detail, no_plan = {}, 0
@@ -262,7 +279,6 @@ def main():
             gd = f'第{o["g"]}组[{xk}]' if xk else o['gt']
             if '合作' in o['gt']: gd += '·合作'
             dkey = f'{kelei}|{o["c"]}|{o["g"]}'
-            if majors: detail[dkey] = majors
             # ── 组热度（auto×1.0+review×0.5 计划加权；Jedi 2026-09-27 拍板）──
             total_plan = sum(m[1] for m in majors) if majors else 0
             hw_c = hw_h = 0
@@ -271,6 +287,18 @@ def main():
                 m.append(lab)
                 hw_c += wc * m[1]
                 hw_h += wh * m[1]
+            # ── 25年专业分（PRD 候选-2，2026-09-30 定稿）：按名归并（去括号）；单行→int，同名多行→「min~max」，查无→None ──
+            sn25 = PAREN.sub('', o['n']).strip()
+            for m in majors:
+                lst = s25map.get((sn25, PAREN.sub('', m[0]).strip()))
+                m.append(lst[0] if lst and len(lst) == 1 else (f'{min(lst)}~{max(lst)}' if lst else None))
+            # 行按 25 年分降序（区间按下限），无分「—」沉底，同分按人数
+            def _s25k(m):
+                v = m[6]
+                if isinstance(v, int): return (-v, -m[1])
+                if isinstance(v, str): return (-int(v.split('~')[0]), -m[1])
+                return (1, -m[1])
+            if majors: detail[dkey] = sorted(majors, key=_s25k)
             hot_sh = hw_h / total_plan if total_plan else 0
             cold_sh = hw_c / total_plan if total_plan else 0
             heat_score = 0
