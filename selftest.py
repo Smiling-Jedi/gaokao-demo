@@ -279,15 +279,17 @@ def main():
         pg.goto(BASE); pg.wait_for_timeout(1500)
         # ---- 静态（表单屏）----
         s = pg.evaluate("""() => ({
-          ver: VERSION,
+          ver: SITE_VERSION,
+          title: document.title,
           verFooter: document.getElementById('verFooter').textContent,
           placeholder: document.getElementById('score').getAttribute('placeholder'),
-          demoBar: document.querySelector('.demo-bar').textContent,
+          footNote: document.querySelector('.ver-footer').textContent,
         })""")
-        rec('UI', '版本号存在且页脚展示', '表单', bool(re.match(r'^v\d+\.\d+\.\d+$', s['ver'])) and s['ver'] in s['verFooter'], s['verFooter'])
+        rec('UI', '官网版本号存在且页脚展示（W 系列独立管理）', '表单', bool(re.match(r'^W\d+\.\d+\.\d+$', s['ver'])) and s['ver'] in s['verFooter'], s['verFooter'])
+        rec('UI', '品牌名=备案名「高考小灵通」', '表单', '高考小灵通' in s['title'], s['title'])
         rec('UI', '分数框无预埋示例分', '表单', s['placeholder'] in (None, ''), repr(s['placeholder']))
-        rec('UI', 'demo-bar 来源口径在顶部', '表单',
-            '2026/2025' in s['demoBar'] and '麦可思' in s['demoBar'] and '剔除专项' in s['demoBar'], s['demoBar'][:80])
+        rec('UI', '页脚数据口径+备案号（官网版不展示细口径行）', '表单',
+            '2026/2025' in s['footNote'] and '粤ICP备2026159972号-1' in s['footNote'] and '麦可思' not in s['footNote'], s['footNote'][:80])
         # ---- 场景扫描 ----
         for first, score, label in SCENARIOS:
             check_scenario(pg, first, score, label)
