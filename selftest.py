@@ -6,7 +6,8 @@
 import json, re, sys
 from playwright.sync_api import sync_playwright
 
-BASE = 'http://localhost:8321/'
+import os
+BASE = os.environ.get('TEST_BASE', 'http://localhost:8321/')
 SCENARIOS = [  # (科类, 分数, 说明)
     ('物理', 650, '高分段'),
     ('物理', 580, '中高分·主战场'),

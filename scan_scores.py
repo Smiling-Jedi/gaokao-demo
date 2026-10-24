@@ -7,7 +7,8 @@ import json, re, sys
 from collections import Counter, defaultdict
 from playwright.sync_api import sync_playwright
 
-BASE = 'http://localhost:8321/'
+import os
+BASE = os.environ.get('TEST_BASE', 'http://localhost:8321/')
 COVER = 0.80          # 覆盖本科线上 80% 考生的分数带
 BAND = 20             # 聚合分数带宽
 SNAP_PHY = [450, 500, 550, 600]   # 跨分段对照快照
